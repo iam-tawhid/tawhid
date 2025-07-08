@@ -1,0 +1,33 @@
+/* Custom styles for the Inter font and smooth transitions */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6; /* Light gray background */
+}
+.page-section {
+    display: block; /* All pages are displayed as block now */
+    animation: fadeIn 0.5s ease-in-out; /* Fade in animation */
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.nav-link.active {
+    font-weight: bold;
+    color: #67e8f9; /* Vibrant light blue/cyan for active link */
+    border-bottom: 2px solid #67e8f9; /* Underline active link with new color */
+}
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

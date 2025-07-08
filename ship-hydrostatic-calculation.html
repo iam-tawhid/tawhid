@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects Portfolio - Ship Hydrostatic Calculation</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for graphing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas for capturing HTML as image for PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        /* Specific styles for this page */
+        .nav-link.active {
+            font-weight: bold;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            color: #d1d5db; /* gray-300 */
+        }
+        @media (max-width: 1023px) {
+            #nav-links.flex {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            font-weight: 500;
+            color: #4b5563; /* gray-700 */
+            margin-bottom: 0.5rem;
+        }
+        .input-group input[type="number"],
+        .input-group textarea {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input[type="number"]:focus,
+        .input-group textarea:focus {
+            border-color: #6366f1; /* indigo-500 */
+        }
+        #offsetTableInput {
+            min-height: 200px; /* Increased height */
+            resize: vertical;
+        }
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px; /* Limit table height for scrollability */
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        #hydrostaticResultsTable th, #hydrostaticResultsTable td,
+        .calculation-table th, .calculation-table td {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            text-align: right;
+            white-space: nowrap; /* Prevent wrapping in table cells */
+        }
+        #hydrostaticResultsTable th, .calculation-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        #hydrostaticResultsTable tr:nth-child(even), .calculation-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px; /* Fixed height for charts */
+            width: 100%;
+            margin-top: 1.5rem;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .calculation-details-section {
+            display: none; /* Hidden by default, shown after calculation */
+            margin-top: 2rem;
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .calculation-details-section h3 {
+            font-size: 1.75rem; /* text-3xl */
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .calculation-table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .calculation-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <!-- Brand/Logo -->
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wider">iamtawhid</a>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="text-white lg:hidden focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div id="nav-links" class="hidden lg:flex flex-col lg:flex-row lg:items-center w-full lg:w-auto mt-4 lg:mt-0 space-y-3 lg:space-y-0 lg:space-x-8">
+                <a href="index.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Home</a>
+                <a href="nav-angle-converter.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md active">NavAngle Converter</a>
+                
+                <!-- Automation Dropdown -->
+                <div class="relative group">
+                    <a href="javascript:void(0)" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md active">
+                        Automation <i class="fas fa-chevron-down text-sm ml-1 group-hover:rotate-180 transition-transform duration-300"></i>
+                    </a>
+                    <div class="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 top-full bg-white text-gray-800 rounded-md shadow-lg py-2 w-56 lg:w-48 transform -translate-x-1/2 lg:translate-x-0 left-1/2 lg:left-0 z-10">
+                        <a href="ship-lines-plan-drawing.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Lines Plan Drawing</a>
+                        <a href="ship-hydrostatic-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 ease-in-out text-base active">Ship Hydrostatic Calculation</a>
+                        <a href="ship-trim-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 text-base">Ship Trim Calculation</a>
+                    </div>
+                </div>
+                
+                <a href="contact.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-6 md:p-8">
+
+        <section id="ship-hydrostatic-calculation" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 text-center">Ship Hydrostatic Calculation</h2>
+            <p class="text-lg text-gray-700 leading-relaxed mb-8 text-center">
+                Input your ship dimensions and offset table to calculate hydrostatic parameters and view them in a table and interactive graphs.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Input Parameters Section -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Input Parameters</h3>
+                    <form id="hydrostaticForm">
+                        <div class="input-group">
+                            <label for="LBP">Length Between Perpendiculars (LBP) (m)</label>
+                            <input type="number" id="LBP" placeholder="e.g., 100" class="w-full" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="B">Breadth (B) (m)</label>
+                            <input type="number" id="B" placeholder="e.g., 15" class="w-full" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="D">Depth (D) (m)</label>
+                            <input type="number" id="D" placeholder="e.g., 8" class="w-full" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="maxDraft">Maximum Calculation Draft (m)</label>
+                            <input type="number" id="maxDraft" placeholder="e.g., 6" class="w-full" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="waterDensity">Water Density (tonnes/m³)</label>
+                            <input type="number" id="waterDensity" placeholder="e.g., 1.025 (seawater)" class="w-full" step="0.001" value="1.025" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="stationSpacing">Station Spacing (m)</label>
+                            <input type="number" id="stationSpacing" placeholder="e.g., 5" class="w-full" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="waterlineSpacing">Waterline Spacing (m)</label>
+                            <input type="number" id="waterlineSpacing" placeholder="e.g., 0.5" class="w-full" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="offsetTableInput">Offset Table (Half-breadths in meters). Paste data directly from spreadsheet.
+                                <br>The first row must contain waterline labels (numbers, e.g., 0, 0.25, 0.5). The first cell of this row can be empty or 'ST/WL'.
+                                <br>Each subsequent row must start with a station label (number, e.g., 0, 1, 1.5) followed by comma- or tab-separated half-breadths for each waterline.
+                                <br>Leave a value empty (e.g., `,,` or `&#09;&#09;`) for a missing offset. All labels must be numeric and strictly increasing.
+                            </label>
+                            <textarea id="offsetTableInput" rows="15" placeholder="Example (comma-separated):
+ST/WL,0,0.25,0.5,0.75,1
+0,0,0,0,0,0
+0.5,0.049842,0.322686,0.3198,0.3354,0.3978
+1,0.071994,0.630006,0.6786,0.702,0.7956
+...
+
+Example (tab-separated, can copy directly from Excel/Sheets):
+ST/WL	0	0.25	0.5	0.75	1
+0	0	0	0	0	0
+0.5	0.049842	0.322686	0.3198	0.3354	0.3978
+1	0.071994	0.630006	0.6786	0.702	0.7956
+..."></textarea>
+                        </div>
+
+                        <div class="flex justify-center gap-4 mt-8">
+                            <button type="submit" id="calculateHydrostaticsBtn" class="bg-indigo-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-chart-bar mr-2"></i> Calculate Hydrostatics
+                            </button>
+                            <button type="button" id="clearInputsBtn" class="bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-400 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-redo mr-2"></i> Clear Inputs
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Results & Graph Section -->
+                <div class="flex flex-col gap-8">
+                    <!-- Status/Error Messages -->
+                    <div id="statusMessages" class="bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded relative hidden" role="alert">
+                        <strong class="font-bold">Info:</strong>
+                        <span class="block sm:inline" id="statusText"></span>
+                    </div>
+                    <div id="errorMessages" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative hidden" role="alert">
+                        <strong class="font-bold">Error:</strong>
+                        <ul id="errorList" class="list-disc list-inside mt-2"></ul>
+                    </div>
+
+                    <!-- Result Table Section -->
+                    <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Hydrostatic Table</h3>
+                        <div class="table-container">
+                            <table id="hydrostaticResultsTable" class="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th>Draft (m)</th>
+                                        <th>Displacement (tonnes)</th>
+                                        <th>TPC (tonnes/cm)</th>
+                                        <th>KB (m)</th>
+                                        <th>KM(T) (m)</th>
+                                        <th>KM(L) (m)</th>
+                                        <th>LCB (m)</th>
+                                        <th>LCF (m)</th>
+                                        <th>MCTC (t-m/cm)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Results will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-center gap-4 mt-6">
+                            <button id="downloadTableBtn" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105" disabled>
+                                <i class="fas fa-download mr-2"></i> Download Table (CSV)
+                            </button>
+                            <button id="downloadTablePdfBtn" class="bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-red-700 transition duration-300 transform hover:scale-105" disabled>
+                                <i class="fas fa-file-pdf mr-2"></i> Download Table (PDF)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Graph Section -->
+                    <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Hydrostatic Graphs</h3>
+                        <div class="input-group">
+                            <label for="graphSelect">Select Graph:</label>
+                            <select id="graphSelect" class="w-full p-2 border border-gray-300 rounded-md bg-white focus:border-indigo-500" disabled>
+                                <option value="">-- Select a Parameter --</option>
+                                <option value="Displacement">Displacement vs. Draft</option>
+                                <option value="TPC">TPC vs. Draft</option>
+                                <option value="KB">KB vs. Draft</option>
+                                <option value="KMT">KM(T) vs. Draft</option>
+                                <option value="KML">KM(L) vs. Draft</option>
+                                <option value="LCB">LCB vs. Draft</option>
+                                <option value="LCF">LCF vs. Draft</option>
+                                <option value="MCTC">MCTC vs. Draft</option>
+                                <option value="All">All Parameters vs. Draft</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="hydrostaticChart"></canvas>
+                        </div>
+                        <div class="flex justify-center mt-6">
+                            <button id="downloadGraphBtn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105" disabled>
+                                <i class="fas fa-download mr-2"></i> Download Graph (PNG)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculation Details Section (New) -->
+            <div id="calculationDetails" class="calculation-details-section">
+                <h3 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">Calculation Details</h3>
+                <p class="text-lg text-gray-700 leading-relaxed mb-4 text-center">
+                    Below are the intermediate calculation steps for your reference.
+                </p>
+
+                <div class="flex justify-center gap-4 mb-6">
+                    <button id="downloadDetailsCsvBtn" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">
+                        <i class="fas fa-download mr-2"></i> Download Details (CSV)
+                    </button>
+                    <button id="downloadDetailsPdfBtn" class="bg-red-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-red-700 transition duration-300 transform hover:scale-105">
+                        <i class="fas fa-file-pdf mr-2"></i> Download Details (PDF)
+                    </button>
+                </div>
+
+                <!-- SM * WL(draft) Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">1. SM * Half-breadths (y) for each Waterline</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="smWlTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Station</th>
+                                <!-- Waterline labels will be inserted here -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sum of Area Function Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">2. Sum of Area Function (Σ(SM * y))</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="sumOfAreaFuncTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Sum of Area Fnc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Waterplane Area Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">3. Waterplane Area (Aw)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="waterplaneAreaTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Waterplane Area (m²)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- TPC Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">4. TPC (Tonnes Per Centimeter)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="tpcTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>TPC (tonnes/cm)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Volume Function Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">5. Volume Function (Aw * WL_SM)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="volumeFuncTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Waterline SM</th>
+                                <th>Volume Fnc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sum of Volume Function (Up to WL) Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">6. Sum of Volume Function (Up to WL)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="sumOfVolFuncTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Sum of Vol Fnc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Underwater Volume Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">7. Underwater Volume</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="underwaterVolumeTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Underwater Volume (m³)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Displacement Table -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">8. Displacement (tonnes)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="displacementTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Displacement (tonnes)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- KB Calculation Details (New Section) -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">9. KB Vertical Levers (for KB calculation)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="kbLeverTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Lever</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">10. KB Moment Function (Lever * Volume Fnc)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="kbMomentFuncTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Moment Fnc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">11. Sum of KB Moment Function (Cumulative)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="kbSumOfMomentFuncTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Sum of Moment Fnc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">12. KB (Vertical Center of Buoyancy)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="kbFinalTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>KB (m from Baseline)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- LCB Calculation Details (Restored) -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">13. Lever (for LCB calculation)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcbLeverTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Lever</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">14. Moment Function (Lever * Volume Fnc)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcbMomentFuncTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Moment Fnc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">15. Sum of Moment Function (Up to WL)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcbSumOfMomentFuncTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Sum of Moment Fnc</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">16. LCB (Longitudinal Center of Buoyancy)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcbFinalTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>LCB (m from Midship)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- LCF Calculation Details -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">17. LCF Station Levers (for LCF calculation)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcfStationLeverTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Station</th>
+                                <th>Lever</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">18. SM * y * Lever for each Waterline (for LCF)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcfSmYLeverTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <!-- Station labels will be inserted as headers -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">19. Sum of First Moment (SUM of FM) (for LCF)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcfSumOfFmTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>SUM of FM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">20. LCF (Longitudinal Center of Flotation)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcfFinalTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>LCF (m from Amidship)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">21. LCF²</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="lcfSquaredTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>LCF²</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- KM(L) and MCTC Calculation Details (New Sections) -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">22. SM * y * Lever² (for KM(L) calculation)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="smYLeverSquaredTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <!-- Station labels will be inserted as headers -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">23. Sum of Second Moment (Σ(SM * y * Lever²))</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="sumOfSecondMomentTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Sum of Second Moment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">24. Moment of Inertia (Amidship) (I_xx_amidship)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="moiAmidshipTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>I_xx_amidship (m⁴)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">25. Moment of Inertia (LCF) (I_xx_LCF)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="moiLcfTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>I_xx_LCF (m⁴)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">26. BM(L) (Longitudinal Metacentric Radius)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="bmLTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>BM(L) (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">27. KM(L) (Longitudinal Metacentric Height)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="kmlFinalTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>KM(L) (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">28. MCTC (Moment to Change Trim 1 cm)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="mctcFinalTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>MCTC (t-m/cm)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- NEW KM(T) Calculation Details -->
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">29. SM * (Half-breadths)^3 (for KM(T) calculation)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="smYCubedTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <!-- Station labels will be inserted as headers -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">30. Sum of SM * (Half-breadths)^3 (Σ(SM * y³))</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="sumOfSmYCubedTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>Sum of SM * y³</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">31. 2nd Moment (CL) (I_yy_amidship)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="secondMomentCLTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>2nd Moment (CL) (m⁴)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">32. BM(T) (Transverse Metacentric Radius)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="bmTTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>BM(T) (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4 class="text-2xl font-semibold text-gray-800 mb-4">33. KM(T) (Transverse Metacentric Height)</h4>
+                <div class="calculation-table-wrapper">
+                    <table id="kmTFinalTable" class="calculation-table">
+                        <thead>
+                            <tr>
+                                <th>Waterline</th>
+                                <th>KM(T) (m)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-6 text-center text-sm shadow-inner mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2025 iamtawhid. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="https://www.linkedin.com/in/iamtawhid/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-blue-400 transition-colors duration-300">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="https://github.com/iam-tawhid" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-400 transition-colors duration-300">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="mailto:iamtawhidhassan@gmail.com" class="text-white hover:text-red-400 transition-colors duration-300">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let hydrostaticChartInstance = null; // To store the Chart.js instance
+        let calculatedHydrostaticData = []; // To store final calculation results
+        let globalStationLabels = []; // To store parsed station labels
+        let globalWaterlineLabels = []; // To store parsed waterline labels
+
+        // Data structures to store intermediate calculation results for display
+        let smTimesWlData = [];
+        let sumOfAreaFuncData = [];
+        let waterplaneAreaData = [];
+        let tpcData = [];
+        let volumeFuncData = [];
+        let sumOfVolFuncData = [];
+        let underwaterVolumeData = [];
+        let displacementData = [];
+        
+        // KB-related intermediate calculation data
+        let kbLeverData = []; // For KB calculation (vertical levers - integer relative to mid-waterline)
+        let kbMomentFuncData = []; // For KB calculation (vertical moments)
+        let kbSumOfMomentFuncData = []; // For KB calculation (cumulative vertical moments)
+        let kbFinalValues = []; // Final KB values
+
+        // LCB-related intermediate calculation data (using vertical levers)
+        let lcbLeverData = []; // Stores the calculated vertical lever for each waterline
+        let lcbMomentFuncData = []; // Stores (Lever * Volume Fnc) for each waterline
+        let lcbSumOfMomentFuncData = []; // Stores cumulative sum of LCB Moment Function
+        let lcbFinalValues = []; // Final LCB values
+
+        // LCF-related intermediate calculation data (using physical longitudinal levers)
+        let lcfStationLevers = []; // Stores the calculated longitudinal lever for each station (physical distance)
+        let lcfSmYLeverData = []; // Stores SM * y * LCF Lever for each station at each waterline
+        let lcfSumOfFmValues = []; // Stores SUM of FM (Longitudinal) for each waterline
+        let lcfFinalValues = []; // Final LCF values
+        let lcfSquaredValues = []; // Stores LCF^2 for each waterline
+
+        // KM(L) and MCTC related intermediate calculation data
+        let smYLeverSquaredData = []; // Stores SM * y * Lever^2 for each station at each waterline
+        let sumOfSecondMomentData = []; // Stores Sum of Second Moment for each waterline
+        let momentOfInertiaAmidshipData = []; // Stores Moment of Inertia (Amidship) for each waterline
+        let momentOfInertiaLcfData = []; // Stores Moment of Inertia (LCF) for each waterline
+        let bmLValues = []; // Stores BM(L) for each waterline
+
+        // KM(T) related intermediate calculation data (NEW)
+        let smYCubedData = []; // Stores SM * (half-breadth)^3 for each station at each waterline
+        let sumOfSmYCubedData = []; // Stores Sum of SM * y^3 for each waterline
+        let secondMomentCLData = []; // Stores 2nd moment (CL) for each waterline
+        let bmTValues = []; // Stores BM(T) for each waterline
+
+
+        // Function to calculate station levers (distance from midship in station spacing units)
+        // This function is for LCF, not KB or LCB.
+        function calculateStationLevers(stationLabels) {
+            const numStations = stationLabels.length;
+            // Find the midship station label (assuming it's the middle value if sorted)
+            const sortedStationLabels = [...stationLabels].sort((a, b) => a - b);
+            const midshipStationLabel = sortedStationLabels[Math.floor(numStations / 2)];
+            
+            const levers = [];
+            for (let i = 0; i < numStations; i++) {
+                // Calculate lever as (current station label - midship station label)
+                levers.push(stationLabels[i] - midshipStationLabel);
+            }
+            return levers;
+        }
+
+        // Helper function for linear interpolation
+        function interpolateLinear(x, x0, y0, x1, y1) {
+            if (x1 === x0) return y0; // Avoid division by zero
+            return y0 + (y1 - y0) * ((x - x0) / (x1 - x0));
+        }
+
+        // Function to interpolate missing values in the offset table
+        function fillMissingOffsets(offsetTable, numStations, numWaterlines, errors) {
+            // First pass: Interpolate horizontally (along waterlines, across stations)
+            for (let wl = 0; wl < numWaterlines; wl++) {
+                const row = offsetTable.map(station => station[wl]);
+                for (let s = 0; s < numStations; s++) {
+                    if (row[s] === null) {
+                        const interpolatedVal = interpolate1D(row, s);
+                        if (interpolatedVal !== null) {
+                            offsetTable[s][wl] = interpolatedVal;
+                        }
+                    }
+                }
+            }
+
+            // Second pass: Interpolate vertically (along stations, across waterlines)
+            for (let s = 0; s < numStations; s++) {
+                const col = offsetTable[s];
+                for (let wl = 0; wl < numWaterlines; wl++) {
+                    if (col[wl] === null) {
+                        const interpolatedVal = interpolate1D(col, wl);
+                        if (interpolatedVal !== null) {
+                            offsetTable[s][wl] = interpolatedVal;
+                        }
+                    }
+                }
+            }
+
+            // Final check for any remaining nulls
+            for (let s = 0; s < numStations; s++) {
+                for (let wl = 0; wl < numWaterlines; wl++) {
+                    if (offsetTable[s][wl] === null) {
+                        errors.push(`Could not interpolate missing offset at Station ${globalStationLabels[s]}, Waterline ${globalWaterlineLabels[wl]}. Please provide more data.`);
+                    }
+                }
+            }
+        }
+
+        // Linear interpolation for a 1D array (used by fillMissingOffsets)
+        function interpolate1D(data, index) {
+            if (data[index] !== null) return data[index]; // Value exists
+
+            let left = -1;
+            for (let i = index - 1; i >= 0; i--) {
+                if (data[i] !== null) {
+                    left = i;
+                    break;
+                }
+            }
+
+            let right = -1;
+            for (let i = index + 1; i < data.length; i++) {
+                if (data[i] !== null) {
+                    right = i;
+                    break;
+                }
+            }
+
+            if (left !== -1 && right !== -1) {
+                // Interpolate between left and right
+                const x0 = left;
+                const y0 = data[left];
+                const x1 = right;
+                const y1 = data[right];
+                return y0 + (y1 - y0) * ((index - x0) / (x1 - x0));
+            } else if (left !== -1) {
+                // Extrapolate from left (use last valid value)
+                return data[left];
+            } else if (right !== -1) {
+                // Extrapolate from right (use first valid value)
+                return data[right];
+            }
+            return null; // Cannot interpolate
+        }
+
+        // Simpson's Rule for numerical integration (1/3 rule for odd points, Trapezoidal for even)
+        function simpsonsRule(ordinates, spacing) {
+            const n = ordinates.length;
+            if (n < 2) return 0;
+
+            let area = 0;
+            if (n % 2 === 1) { // Simpson's 1/3 rule for odd number of ordinates
+                for (let i = 0; i < n; i += 2) {
+                    if (i + 2 < n) {
+                        area += ordinates[i] + 4 * ordinates[i + 1] + ordinates[i + 2];
+                    } else if (i + 1 < n) { 
+                        area += (ordinates[i] + ordinates[i + 1]) * 1.5; 
+                    }
+                }
+                area *= spacing / 3;
+            } else { // Trapezoidal rule for even number of ordinates
+                for (let i = 0; i < n - 1; i++) {
+                    area += (ordinates[i] + ordinates[i + 1]);
+                }
+                area *= spacing / 2;
+            }
+            return area;
+        }
+
+        // Function to parse the offset table from textarea
+        function parseOffsetTable(text, errors) {
+            const lines = text.trim().split('\n').filter(line => line.trim() !== ''); // Filter out empty lines
+
+            if (lines.length < 2) {
+                errors.push("Offset table must have at least 2 rows (header row + at least one station row).");
+                return { data: [], stationLabels: [], waterlineLabels: [] };
+            }
+
+            // Parse waterline labels from the first row
+            // Split by comma or tab
+            const headerRowTokens = lines[0].split(/[\t,]/).map(val => val.trim());
+            const parsedWaterlineLabels = [];
+            
+            // Start from index 1 to skip the 'ST/WL' or empty corner cell
+            for (let i = 1; i < headerRowTokens.length; i++) {
+                const wlLabel = parseFloat(headerRowTokens[i]);
+                if (isNaN(wlLabel)) {
+                    errors.push(`Waterline label "${headerRowTokens[i]}" in the first row is not a valid number. Please ensure all waterline headers are numeric.`);
+                    return { data: [], stationLabels: [], waterlineLabels: [] }; // Critical error, stop parsing
+                }
+                parsedWaterlineLabels.push(wlLabel);
+            }
+
+            if (parsedWaterlineLabels.length < 2) {
+                errors.push("Offset table must contain at least two waterlines (columns) with valid numeric labels.");
+                return { data: [], stationLabels: [], waterlineLabels: [] };
+            }
+
+            // Ensure waterline labels are strictly increasing
+            for (let i = 0; i < parsedWaterlineLabels.length - 1; i++) {
+                if (parsedWaterlineLabels[i] >= parsedWaterlineLabels[i+1]) {
+                    errors.push(`Waterline labels must be strictly increasing. Issue at: ${parsedWaterlineLabels[i]} followed by ${parsedWaterlineLabels[i+1]}.`);
+                    return { data: [], stationLabels: [], waterlineLabels: [] };
+                }
+            }
+
+            const dataRows = lines.slice(1);
+            const tableData = [];
+            const parsedStationLabels = [];
+
+            // Parse data rows
+            for (let i = 0; i < dataRows.length; ++i) {
+                // Split by comma or tab
+                const values = dataRows[i].split(/[\t,]/).map(val => val.trim());
+                if (values.length < 2) {
+                    errors.push(`Station row ${i + 1} (data line ${i + 2}): Malformed row. Expected at least a station label and one offset.`);
+                    continue;
+                }
+
+                const stationLabel = parseFloat(values[0]); // Use parseFloat for station labels too
+                if (isNaN(stationLabel)) {
+                    errors.push(`Station row ${i + 1} (data line ${i + 2}): Invalid station label "${values[0]}". Station labels must be numbers.`);
+                    continue; // Skip this row, but continue parsing others
+                }
+                parsedStationLabels.push(stationLabel);
+
+                const offsets = [];
+                // Start from index 1 to get actual offset values
+                for (let j = 1; j < values.length; ++j) {
+                    if (values[j] !== "") {
+                        const parsedVal = parseFloat(values[j]);
+                        if (!isNaN(parsedVal)) {
+                            offsets.push(parsedVal);
+                        } else {
+                            errors.push(`Station ${stationLabel}, Waterline ${parsedWaterlineLabels[j-1]}: Invalid number "${values[j]}". Assuming missing.`);
+                            offsets.push(null); // Explicitly null for invalid
+                        }
+                    } else {
+                        offsets.push(null); // Explicitly null for empty
+                    }
+                }
+
+                if (offsets.length !== parsedWaterlineLabels.length) {
+                    errors.push(`Station ${stationLabel}: Number of offsets (${offsets.length}) does not match number of waterlines (${parsedWaterlineLabels.length}).`);
+                    // This is a critical structural error for this row, but we can try to continue with other rows
+                    // For now, let's just log the error and push the offsets we got.
+                }
+                tableData.push(offsets);
+            }
+
+            // Ensure station labels are strictly increasing
+            for (let i = 0; i < parsedStationLabels.length - 1; i++) {
+                if (parsedStationLabels[i] >= parsedStationLabels[i+1]) {
+                    errors.push(`Station labels must be strictly increasing. Issue at: ${parsedStationLabels[i]} followed by ${parsedStationLabels[i+1]}.`);
+                    return { data: [], stationLabels: [], waterlineLabels: [] };
+                }
+            }
+
+            if (tableData.length === 0) {
+                errors.push("No valid offset data rows found after parsing.");
+            }
+
+            return { data: tableData, stationLabels: parsedStationLabels, waterlineLabels: parsedWaterlineLabels };
+        }
+
+        // Custom Simpson's Multipliers for Stations based on image_ba6fe4.png
+        function getStationSimpsonsMultipliers(stationLabels, errors) {
+            const smMap = {
+                'FP': 0.5, '0': 0.5, // Assuming '0' can be used for FP if not explicitly 'FP'
+                '0.5': 2, '1': 1, '1.5': 2, '2': 1.5,
+                '3': 4, '4': 2, '5': 4, '6': 2, '7': 4, '8': 2, '9': 4, '10': 2,
+                '11': 4, '12': 2, '13': 4, '14': 2, '15': 4, '16': 2, '17': 4,
+                '18': 1.5, '18.5': 2, '19': 1, '19.5': 2, '20': 0.5, // Assuming '20' can be used for AP if not explicitly 'AP'
+                'AP': 0.5
+            };
+            
+            const multipliers = [];
+            for (let i = 0; i < stationLabels.length; i++) {
+                const label = String(stationLabels[i]); // Convert numeric label to string for map lookup
+                if (smMap.hasOwnProperty(label)) {
+                    multipliers.push(smMap[label]);
+                } else {
+                    // Fallback for standard Simpson's if specific label not found
+                    // This part might need refinement based on user's exact requirements for non-matching labels
+                    if (stationLabels.length % 2 === 1) { // Odd number of stations (standard Simpson's 1/3)
+                        if (i === 0 || i === stationLabels.length - 1) {
+                            multipliers.push(1);
+                        } else if (i % 2 === 1) {
+                            multipliers.push(4);
+                        } else {
+                            multipliers.push(2);
+                        }
+                    } else { // Even number of stations (use trapezoidal or warn)
+                        errors.push(`Warning: Station label '${label}' not found in predefined Simpson's Multiplier map. Using default for now. Consider providing exact station labels as per the example.`);
+                        // For even number of points, a simple fallback might be trapezoidal (1, 1, 1...)
+                        // Or a combination of Simpson's 1/3 and 3/8. For simplicity, we'll use 1.
+                        multipliers.push(1); 
+                    }
+                }
+            }
+
+            // Add a critical error if the number of multipliers doesn't match the number of stations,
+            // which could happen if the labels are completely off.
+            if (multipliers.length !== stationLabels.length) {
+                errors.push("Error: Could not determine Simpson's Multipliers for all stations. Ensure your station labels match the expected pattern or are sequential.");
+                return [];
+            }
+
+            return multipliers;
+        }
+
+        // Standard Simpson's Multipliers for Waterlines (1/3 rule)
+        function getWaterlineSimpsonsMultipliers(numWaterlines, errors) {
+            const multipliers = [];
+            if (numWaterlines < 1) return [];
+            if (numWaterlines === 1) return [1];
+
+            if (numWaterlines % 2 === 1) { // Odd number of waterlines, apply Simpson's 1/3 rule directly
+                for (let i = 0; i < numWaterlines; i++) {
+                    if (i === 0 || i === numWaterlines - 1) {
+                        multipliers.push(1);
+                    } else if (i % 2 === 1) {
+                        multipliers.push(4);
+                    } else {
+                        multipliers.push(2);
+                    }
+                }
+            } else { // Even number of waterlines, use Simpson's 1/3 for first N-3 and Simpson's 3/8 for last 4
+                // Or a simpler approach: Simpson's 1/3 for first N-2, then Trapezoidal for last 2
+                // For now, let's use a simpler approach that covers most cases for even points.
+                // If the user's data always has a pattern like 1,4,2,4,1 for 5 points,
+                // and the number of waterlines can be arbitrary, we need a robust rule.
+                // The image shows 1,4,2,4,1 for 5 waterlines. Let's assume this pattern for simplicity.
+                // If numWaterlines is even, we'll use a mixed method or just warn.
+                errors.push("Warning: Number of waterlines is even. Simpson's 1/3 Rule is most accurate with an odd number of ordinates. A combined rule (e.g., Simpson's 1/3 and 3/8) will be applied, which might introduce slight variations from a purely odd-ordinate rule.");
+                
+                let remaining = numWaterlines;
+                if (remaining >= 3 && (remaining - 1) % 2 === 0) { // If there's an odd number of intervals (even points)
+                    for (let i = 0; i < numWaterlines - 3; i++) { // Apply 1/3 rule up to the last 3 points
+                        if (i === 0) {
+                            multipliers.push(1);
+                        } else if (i % 2 === 1) {
+                            multipliers.push(4);
+                        } else {
+                            multipliers.push(2);
+                        }
+                    }
+                    // Apply Simpson's 3/8 rule for the last 4 points (3 intervals)
+                    multipliers.push(1, 3, 3, 1); // For the remaining 4 points
+                } else { // If only 2 points (1 interval), use trapezoidal
+                    multipliers.push(1, 1);
+                }
+            }
+            return multipliers;
+        }
+
+
+        // Main calculation function
+        function calculateHydrostatics() {
+            console.log("Starting calculateHydrostatics");
+
+            // Clear previous results and messages
+            document.getElementById('hydrostaticResultsTable').getElementsByTagName('tbody')[0].innerHTML = '';
+            document.getElementById('downloadTableBtn').disabled = true;
+            document.getElementById('downloadTablePdfBtn').disabled = true; // Disable PDF button
+            document.getElementById('graphSelect').disabled = true;
+            document.getElementById('downloadGraphBtn').disabled = true;
+            document.getElementById('statusMessages').classList.add('hidden');
+            document.getElementById('errorMessages').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+            
+            // Clear intermediate calculation data for display
+            smTimesWlData = [];
+            sumOfAreaFuncData = [];
+            waterplaneAreaData = [];
+            tpcData = [];
+            volumeFuncData = [];
+            sumOfVolFuncData = [];
+            underwaterVolumeData = [];
+            displacementData = [];
+            
+            // Clear KB-related intermediate calculation data
+            kbLeverData = [];
+            kbMomentFuncData = [];
+            kbSumOfMomentFuncData = [];
+            kbFinalValues = [];
+
+            // Clear LCB-related intermediate calculation data (restored)
+            lcbLeverData = [];
+            lcbMomentFuncData = [];
+            lcbSumOfMomentFuncData = [];
+            lcbFinalValues = [];
+
+            // Clear LCF-related intermediate calculation data
+            lcfStationLevers = [];
+            lcfSmYLeverData = [];
+            lcfSumOfFmValues = [];
+            lcfFinalValues = [];
+            lcfSquaredValues = [];
+
+            // Clear KM(L) and MCTC related intermediate calculation data
+            smYLeverSquaredData = [];
+            sumOfSecondMomentData = [];
+            momentOfInertiaAmidshipData = [];
+            momentOfInertiaLcfData = [];
+            bmLValues = [];
+
+            // Clear KM(T) related intermediate calculation data (NEW)
+            smYCubedData = [];
+            sumOfSmYCubedData = [];
+            secondMomentCLData = [];
+            bmTValues = [];
+
+
+            // Hide calculation details section initially
+            document.getElementById('calculationDetails').style.display = 'none';
+            document.getElementById('downloadDetailsCsvBtn').disabled = true; // Disable details CSV button
+            document.getElementById('downloadDetailsPdfBtn').disabled = true; // Disable details PDF button
+
+
+            if (hydrostaticChartInstance) {
+                hydrostaticChartInstance.destroy();
+                hydrostaticChartInstance = null;
+            }
+            calculatedHydrostaticData = [];
+            globalStationLabels = [];
+            globalWaterlineLabels = [];
+
+            const errors = [];
+
+            const LBP = parseFloat(document.getElementById('LBP').value);
+            const B = parseFloat(document.getElementById('B').value);
+            const D = parseFloat(document.getElementById('D').value); // Max Depth of the ship
+            const maxDraft = parseFloat(document.getElementById('maxDraft').value);
+            const waterDensity = parseFloat(document.getElementById('waterDensity').value);
+            const stationSpacing = parseFloat(document.getElementById('stationSpacing').value); // New input
+            const waterlineSpacing = parseFloat(document.getElementById('waterlineSpacing').value); // New input
+            const offsetTableText = document.getElementById('offsetTableInput').value;
+
+            // Input validation
+            if (isNaN(LBP) || LBP <= 0) errors.push("Length Between Perpendiculars (LBP) must be a positive number.");
+            if (isNaN(B) || B <= 0) errors.push("Breadth (B) must be a positive number.");
+            if (isNaN(D) || D <= 0) errors.push("Depth (D) must be a positive number.");
+            if (isNaN(maxDraft) || maxDraft <= 0 || maxDraft > D) errors.push("Maximum Calculation Draft must be a positive number and not exceed Depth (D).");
+            if (isNaN(waterDensity) || waterDensity <= 0) errors.push("Water Density must be a positive number.");
+            if (isNaN(stationSpacing) || stationSpacing <= 0) errors.push("Station Spacing must be a positive number.");
+            if (isNaN(waterlineSpacing) || waterlineSpacing <= 0) errors.push("Waterline Spacing must be a positive number.");
+
+            console.log("Parsed inputs:", { LBP, B, D, maxDraft, waterDensity, stationSpacing, waterlineSpacing });
+
+
+            const { data: offsetTable, stationLabels, waterlineLabels } = parseOffsetTable(offsetTableText, errors);
+            globalStationLabels = stationLabels;
+            globalWaterlineLabels = waterlineLabels;
+
+            const numStations = globalStationLabels.length;
+            const numWaterlines = globalWaterlineLabels.length;
+
+            console.log("Offset table dimensions:", numStations, "stations,", numWaterlines, "waterlines");
+
+
+            if (numStations < 3 || numWaterlines < 3) {
+                errors.push("Offset table must contain at least 3 stations and 3 waterlines for Simpson's Rule accuracy.");
+            }
+
+            // Get Simpson's Multipliers for stations
+            const stationSMs = getStationSimpsonsMultipliers(globalStationLabels, errors);
+            if (stationSMs.length === 0 && errors.length > 0) { // If SMs could not be determined and errors were added
+                document.getElementById('errorMessages').classList.remove('hidden');
+                errors.forEach(err => {
+                    const li = document.createElement('li');
+                    li.textContent = err;
+                    document.getElementById('errorList').appendChild(li);
+                });
+                return;
+            }
+            console.log("Station SMs:", stationSMs);
+
+
+            // Get Simpson's Multipliers for waterlines
+            const waterlineSMs = getWaterlineSimpsonsMultipliers(numWaterlines, errors);
+            if (waterlineSMs.length === 0 && errors.length > 0) { // If SMs could not be determined and errors were added
+                document.getElementById('errorMessages').classList.remove('hidden');
+                errors.forEach(err => {
+                    const li = document.createElement('li');
+                    li.textContent = err;
+                    document.getElementById('errorList').appendChild(li);
+                });
+                return;
+            }
+            console.log("Waterline SMs:", waterlineSMs);
+
+
+            if (errors.length === 0) { // Only attempt interpolation if basic parsing had no structural errors
+                fillMissingOffsets(offsetTable, numStations, numWaterlines, errors);
+            }
+            
+            if (errors.length > 0) {
+                document.getElementById('errorMessages').classList.remove('hidden');
+                errors.forEach(err => {
+                    const li = document.createElement('li');
+                    li.textContent = err;
+                    document.getElementById('errorList').appendChild(li);
+                });
+                return;
+            }
+
+            document.getElementById('statusMessages').classList.remove('hidden');
+            document.getElementById('statusText').textContent = "Performing calculations...";
+
+            // LCF Station Levers: Calculate based on station labels and middle station
+            const midStationIndex = Math.floor(numStations / 2); // This is needed for LCF levers
+            const middleStationLabel = globalStationLabels[midStationIndex];
+            lcfStationLevers = globalStationLabels.map(label => label - middleStationLabel);
+
+
+            // Waterline Z-coordinates (from baseline) - Now using user-provided waterlineSpacing
+            const calculatedDrafts = Array.from({length: numWaterlines}, (_, i) => i * waterlineSpacing);
+
+            // --- Intermediate Calculation Arrays for internal use ---
+            const sumOfAreaFuncs = []; // Sum of (SM * y) for each waterline (internal calculation)
+            const waterplaneAreas = []; // Waterplane Area for each waterline (internal calculation)
+            const tpcValues = []; // TPC for each waterline (internal calculation)
+            const volumeFuncs = []; // Volume Function (Aw * WL_SM) for each waterline (internal calculation)
+            const sumOfVolFuncsCumulative = []; // Cumulative sum of Volume Function (internal calculation)
+            const underwaterVolumes = []; // Underwater Volume for each waterline (internal calculation)
+            const displacementValues = []; // Displacement for each waterline
+
+            // --- Calculation Loop for each Waterline ---
+            try {
+                for (let wlIndex = 0; wlIndex < numWaterlines; wlIndex++) {
+                    const currentDraft = calculatedDrafts[wlIndex]; // Use calculated draft based on spacing
+                    console.log("Processing Waterline:", currentDraft);
+
+                    // 1. SM * Half-breadths (y) and Sum of Area Function (Σ(SM * y))
+                    let currentSumOfAreaFnc = 0;
+                    const smTimesYRow = {}; // For display in smWlTable, keyed by station label
+                    
+                    for (let s = 0; s < numStations; s++) {
+                        const y_s = offsetTable[s][wlIndex]; // Half-breadths at current station and waterline
+                        const sm_s = stationSMs[s];
+                        const sm_times_y = y_s * sm_s;
+                        currentSumOfAreaFnc += sm_times_y;
+                        smTimesYRow[globalStationLabels[s]] = sm_times_y; // Store for display
+                    }
+                    smTimesWlData.push({ waterline: currentDraft, data: smTimesYRow });
+                    sumOfAreaFuncs.push(currentSumOfAreaFnc); // Store for internal calculation
+                    sumOfAreaFuncData.push({ waterline: currentDraft, sumOfAreaFnc: currentSumOfAreaFnc }); // Store for display
+                    console.log("  currentSumOfAreaFnc:", currentSumOfAreaFnc);
+
+                    // 2. Waterplane Area = 2/3 * station spacing * sum of area function
+                    const Aw = (2/3) * stationSpacing * currentSumOfAreaFnc;
+                    waterplaneAreas.push(Aw); // Store for internal calculation
+                    waterplaneAreaData.push({ waterline: currentDraft, Aw: Aw }); // Store for display
+                    console.log("  Aw:", Aw);
+
+                    // 3. TPC = (waterplane area * density of water)/100
+                    const TPC = (Aw * waterDensity) / 100;
+                    tpcValues.push(TPC); // Store for internal calculation
+                    tpcData.push({ waterline: currentDraft, TPC: TPC }); // Store for display
+                    console.log("  TPC:", TPC);
+
+                    // 4. Volume Function = Waterplane Area * WL_SM
+                    const wl_sm_for_volume = waterlineSMs[wlIndex];
+                    const volumeFnc = Aw * wl_sm_for_volume;
+                    volumeFuncs.push(volumeFnc); // Store for internal calculation
+                    volumeFuncData.push({ waterline: currentDraft, wlSM: wl_sm_for_volume, volumeFnc: volumeFnc }); // Store for display
+                    console.log("  volumeFnc:", volumeFnc);
+
+                    // 5. Sum of Volume Function (Up to WL) - Cumulative Sum
+                    const cumulativeVolFnc = (wlIndex === 0) ? volumeFnc : sumOfVolFuncsCumulative[wlIndex - 1] + volumeFnc;
+                    sumOfVolFuncsCumulative.push(cumulativeVolFnc); // Store for internal calculation
+                    sumOfVolFuncData.push({ waterline: currentDraft, sumOfVolFnc: cumulativeVolFnc }); // Store for display
+                    console.log("  cumulativeVolFnc:", cumulativeVolFnc);
+
+                    // 6. Underwater Volume = 1/3 * waterline spacing * sum of volume function up to different waterlines
+                    const underwaterVol = (1/3) * waterlineSpacing * cumulativeVolFnc; // Use user-provided waterlineSpacing
+                    underwaterVolumes.push(underwaterVol); // Store for internal calculation
+                    underwaterVolumeData.push({ waterline: currentDraft, underwaterVol: underwaterVol }); // Store for display
+                    console.log("  underwaterVol:", underwaterVol);
+
+                    // 7. Displacement(ton) = underwater volume * density of water
+                    const displacement = underwaterVol * waterDensity;
+                    displacementValues.push(displacement); // Store for internal calculation
+                    displacementData.push({ waterline: currentDraft, displacement: displacement }); // Store for display
+                    console.log("  displacement:", displacement);
+
+                    // --- KB Calculation (Vertical Center of Buoyancy) ---
+                    // New KB Lever: starts at 0 for the first waterline and increments by 1
+                    const kbLever = wlIndex;
+                    kbLeverData.push({ waterline: currentDraft, lever: kbLever }); // Store for display
+
+                    // KB Moment Function = Lever * Volume Function
+                    const kbMomentFnc = kbLever * volumeFnc;
+                    kbMomentFuncData.push({ waterline: currentDraft, momentFnc: kbMomentFnc }); // Store for display
+
+                    // Sum of KB Moment Function (Cumulative)
+                    const kbCumulativeMomentFnc = (wlIndex === 0) ? kbMomentFnc : kbSumOfMomentFuncData[wlIndex - 1].sumOfMomentFnc + kbMomentFnc;
+                    kbSumOfMomentFuncData.push({ waterline: currentDraft, sumOfMomentFnc: kbCumulativeMomentFnc }); // Store for display
+
+                    // KB = (Sum of Moment Function (Up to WL) / Sum of Volume Function (Up to WL)) * WL spacing
+                    let kb = 0;
+                    if (cumulativeVolFnc > 1e-6) { // Avoid division by zero
+                        kb = (kbCumulativeMomentFnc / cumulativeVolFnc) * waterlineSpacing;
+                    }
+                    kbFinalValues.push(kb); // Store for display
+                    console.log("  KB:", kb);
+
+                    // --- LCB Calculation (Longitudinal Center of Buoyancy) - RESTORED to Vertical Lever Method ---
+                    // LCB Lever: (currentDraft - midDraft) / waterlineSpacing
+                    const midDraft = (calculatedDrafts[0] + calculatedDrafts[numWaterlines - 1]) / 2;
+                    const lcbCurrentLever = (currentDraft - midDraft) / waterlineSpacing;
+                    lcbLeverData.push({ waterline: currentDraft, lever: lcbCurrentLever }); // Store for display
+
+                    // LCB Moment Function = Lever * Volume Function
+                    const lcbMomentFnc = lcbCurrentLever * volumeFnc;
+                    lcbMomentFuncData.push({ waterline: currentDraft, momentFnc: lcbMomentFnc }); // Store for display
+
+                    // Sum of LCB Moment Function (Cumulative)
+                    const lcbCumulativeMomentFnc = (wlIndex === 0) ? lcbMomentFnc : lcbSumOfMomentFuncData[wlIndex - 1].sumOfMomentFnc + lcbMomentFnc;
+                    lcbSumOfMomentFuncData.push({ waterline: currentDraft, sumOfMomentFnc: lcbCumulativeMomentFnc }); // Store for display
+
+                    // LCB = (Sum of LCB Moment Function / Sum of Volume Function) * stationSpacing (Note: this LCB is from amidship)
+                    let lcb = 0;
+                    if (cumulativeVolFnc > 1e-6) { // Avoid division by zero
+                        lcb = lcbCumulativeMomentFnc / cumulativeVolFnc; // No * stationSpacing here if lever is already in physical units
+                    }
+                    lcbFinalValues.push(lcb); // Store for display
+                    console.log("  LCB:", lcb);
+
+
+                    // --- LCF Calculation (Longitudinal Center of Flotation) with Station Levers ---
+                    let currentSumOfLcfMoments = 0; // Sum of First Moment for the current waterline (longitudinal)
+                    const lcfSmYLeverRow = {}; // For display
+
+                    for (let s = 0; s < numStations; s++) {
+                        const y_s = offsetTable[s][wlIndex]; // Half-breadths at current station and waterline
+                        const sm_s = stationSMs[s];
+                        const lcf_station_lever_s = lcfStationLevers[s]; // Use the LCF station lever (e.g. -10, -9.5, etc.)
+                        const lcf_sm_y_lever = y_s * sm_s * lcf_station_lever_s;
+                        currentSumOfLcfMoments += lcf_sm_y_lever;
+                        lcfSmYLeverRow[globalStationLabels[s]] = lcf_sm_y_lever; // Store for display
+                    }
+                    lcfSmYLeverData.push({ waterline: currentDraft, data: lcfSmYLeverRow }); // Store for display
+                    lcfSumOfFmValues.push(currentSumOfLcfMoments); // Store for display
+                    console.log("  currentSumOfLcfMoments (for LCF):", currentSumOfLcfMoments);
+
+                    // Calculate LCF (amidship) = (SUM of FM / SUM of area function) * station spacing
+                    let lcf = 0;
+                    if (currentSumOfAreaFnc !== 0) { // Avoid division by zero
+                        lcf = (currentSumOfLcfMoments / currentSumOfAreaFnc) * stationSpacing;
+                    }
+                    lcfFinalValues.push(lcf); // Store for display
+                    console.log("  LCF:", lcf);
+
+                    // Calculate LCF^2
+                    const lcfSquared = lcf * lcf;
+                    lcfSquaredValues.push(lcfSquared); // Store for display
+
+                    // --- KM(L) and MCTC Calculations ---
+                    // SM * y * Lever^2 (for KM(L) calculation)
+                    let currentSmYLeverSquaredSum = 0;
+                    const smYLeverSquaredRow = {}; // For display
+                    for (let s = 0; s < numStations; s++) {
+                        const y_s = offsetTable[s][wlIndex];
+                        const sm_s = stationSMs[s];
+                        const lcf_station_lever_s = lcfStationLevers[s]; // Re-use LCF station lever
+                        const sm_y_lever_squared = y_s * sm_s * (lcf_station_lever_s * lcf_station_lever_s);
+                        currentSmYLeverSquaredSum += sm_y_lever_squared;
+                        smYLeverSquaredRow[globalStationLabels[s]] = sm_y_lever_squared; // Store for display
+                    }
+                    smYLeverSquaredData.push({ waterline: currentDraft, data: smYLeverSquaredRow }); // Store for display
+
+                    // Sum of Second Moment
+                    sumOfSecondMomentData.push({ waterline: currentDraft, sumOfSecondMoment: currentSmYLeverSquaredSum });
+
+                    // Moment of Inertia (Amidship) = (2/3) * SUM of Second Moment * (station spacing^3)
+                    const moiAmidship = (2/3) * currentSmYLeverSquaredSum * Math.pow(stationSpacing, 3);
+                    momentOfInertiaAmidshipData.push({ waterline: currentDraft, moiAmidship: moiAmidship });
+
+                    // Moment of Inertia (LCF) = Moment of Inertia (Amidship) - (waterplane area * LCF^2)
+                    let moiLcf = moiAmidship - (waterplaneAreas[wlIndex] * lcfSquaredValues[wlIndex]);
+                    momentOfInertiaLcfData.push({ waterline: currentDraft, moiLcf: moiLcf });
+
+                    // BM(L) = Moment of Inertia (LCF) / underwater volume
+                    let bmL = 0;
+                    if (underwaterVolumes[wlIndex] > 1e-6) { // Avoid division by zero
+                        bmL = moiLcf / underwaterVolumes[wlIndex];
+                    }
+                    bmLValues.push({ waterline: currentDraft, bmL: bmL });
+
+                    // KM(L) = BM(L) + KB
+                    const kml = bmL + kbFinalValues[wlIndex];
+
+                    // MCTC = (Displacement (tonnes) * BM(L) ) / (100 * LBP)
+                    let mctc = 0;
+                    if (LBP > 1e-6) { // Avoid division by zero
+                        mctc = (displacementValues[wlIndex] * bmL) / (100 * LBP);
+                    }
+
+                    // --- KM(T) Calculation (NEW) ---
+                    // SM * (WL values)^3
+                    let currentSmYCubedSum = 0;
+                    const smYCubedRow = {}; // For display
+                    for (let s = 0; s < numStations; s++) {
+                        const y_s = offsetTable[s][wlIndex]; // Half-breadths at current station and waterline
+                        const sm_s = stationSMs[s];
+                        const sm_y_cubed = sm_s * Math.pow(y_s, 3);
+                        currentSmYCubedSum += sm_y_cubed;
+                        smYCubedRow[globalStationLabels[s]] = sm_y_cubed; // Store for display
+                    }
+                    smYCubedData.push({ waterline: currentDraft, data: smYCubedRow }); // Store for display
+
+                    // Sum of SM * (WL values)^3
+                    sumOfSmYCubedData.push({ waterline: currentDraft, sumOfSmYCubed: currentSmYCubedSum });
+
+                    // 2nd moment(CL) = (2/9) * (SUM of SM * station spacing)
+                    const secondMomentCL = (2/9) * (currentSmYCubedSum * stationSpacing);
+                    secondMomentCLData.push({ waterline: currentDraft, secondMomentCL: secondMomentCL });
+
+                    // BM(T) = 2nd moment(CL) / underwater volume
+                    let bmT = 0;
+                    if (underwaterVolumes[wlIndex] > 1e-6) { // Avoid division by zero
+                        bmT = secondMomentCL / underwaterVolumes[wlIndex];
+                    }
+                    bmTValues.push({ waterline: currentDraft, bmT: bmT });
+
+                    // KM(T) = BM(T) + KB
+                    const kmt = bmT + kbFinalValues[wlIndex];
+
+                    // Store final results for main table and graphs
+                    calculatedHydrostaticData.push({
+                        draft: currentDraft,
+                        Displacement: displacement,
+                        TPC: TPC,
+                        KB: kb, 
+                        KMT: kmt, 
+                        KML: kml, 
+                        LCB: lcb, 
+                        LCF: lcf, 
+                        MCTC: mctc 
+                    });
+                }
+            } catch (error) {
+                console.error("An error occurred during calculation:", error);
+                document.getElementById('errorMessages').classList.remove('hidden');
+                document.getElementById('statusMessages').classList.add('hidden');
+                const li = document.createElement('li');
+                li.textContent = `Calculation Error: ${error.message}. Check console for details.`;
+                document.getElementById('errorList').appendChild(li);
+                return; // Stop execution if an error occurs
+            }
+
+            console.log("Calculations complete. Displaying results.");
+
+            // Display all intermediate and final results
+            displayHydrostaticTable(calculatedHydrostaticData);
+            displayCalculationDetails();
+
+            document.getElementById('downloadTableBtn').disabled = false;
+            document.getElementById('downloadTablePdfBtn').disabled = false; // Enable PDF button
+            document.getElementById('graphSelect').disabled = false;
+            document.getElementById('downloadGraphBtn').disabled = false;
+            document.getElementById('statusText').textContent = "Calculations complete! Table and graphs are ready. See 'Calculation Details' for intermediate steps.";
+            document.getElementById('statusMessages').classList.remove('bg-blue-100', 'border-blue-200', 'text-blue-700');
+            document.getElementById('statusMessages').classList.add('bg-green-100', 'border-green-200', 'text-green-700');
+            document.getElementById('calculationDetails').style.display = 'block'; // Show calculation details section
+            document.getElementById('downloadDetailsCsvBtn').disabled = false; // Enable details CSV button
+            document.getElementById('downloadDetailsPdfBtn').disabled = false; // Enable details PDF button
+        }
+
+        // Function to display results in the main hydrostatic table
+        function displayHydrostaticTable(data) {
+            const tbody = document.getElementById('hydrostaticResultsTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = ''; // Clear previous results
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.draft.toFixed(3)}</td>
+                    <td>${row.Displacement.toFixed(3)}</td>
+                    <td>${row.TPC.toFixed(3)}</td>
+                    <td>${row.KB.toFixed(3)}</td>
+                    <td>${row.KMT.toFixed(3)}</td>
+                    <td>${row.KML.toFixed(3)}</td>
+                    <td>${row.LCB.toFixed(3)}</td>
+                    <td>${row.LCF.toFixed(3)}</td>
+                    <td>${row.MCTC.toFixed(3)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Function to display intermediate calculation details
+        function displayCalculationDetails() {
+            // SM * Half-breadths (y) for each Waterline
+            const smWlTableHead = document.getElementById('smWlTable').getElementsByTagName('thead')[0];
+            const smWlTableBody = document.getElementById('smWlTable').getElementsByTagName('tbody')[0];
+            smWlTableHead.innerHTML = '';
+            smWlTableBody.innerHTML = '';
+
+            if (smTimesWlData.length > 0) {
+                let headerRowHtml = '<tr><th>Waterline</th>'; // Headers are waterlines, rows are stations
+                globalStationLabels.forEach(station => { 
+                    headerRowHtml += `<th>Stn ${station}</th>`;
+                });
+                smWlTableHead.innerHTML = headerRowHtml + '</tr>';
+
+                globalWaterlineLabels.forEach((wlLabel, wlIdx) => {
+                    let rowHtml = `<tr><td>WL ${wlLabel.toFixed(3)}</td>`;
+                    globalStationLabels.forEach((stationLabel) => {
+                        const val = smTimesWlData[wlIdx].data[stationLabel]; 
+                        rowHtml += `<td>${val !== undefined ? val.toFixed(3) : 'N/A'}</td>`;
+                    });
+                    smWlTableBody.innerHTML += rowHtml + '</tr>';
+                });
+            }
+
+
+            // Sum of Area Function Table
+            const sumOfAreaFuncBody = document.getElementById('sumOfAreaFuncTable').getElementsByTagName('tbody')[0];
+            sumOfAreaFuncBody.innerHTML = '';
+            sumOfAreaFuncData.forEach(row => {
+                sumOfAreaFuncBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.sumOfAreaFnc.toFixed(3)}</td></tr>`;
+            });
+
+            // Waterplane Area Table
+            const waterplaneAreaBody = document.getElementById('waterplaneAreaTable').getElementsByTagName('tbody')[0];
+            waterplaneAreaBody.innerHTML = '';
+            waterplaneAreaData.forEach(row => {
+                waterplaneAreaBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.Aw.toFixed(3)}</td></tr>`;
+            });
+
+            // TPC Table
+            const tpcBody = document.getElementById('tpcTable').getElementsByTagName('tbody')[0];
+            tpcBody.innerHTML = '';
+            tpcData.forEach(row => {
+                tpcBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.TPC.toFixed(3)}</td></tr>`;
+            });
+
+            // Volume Function Table
+            const volumeFuncBody = document.getElementById('volumeFuncTable').getElementsByTagName('tbody')[0];
+            volumeFuncBody.innerHTML = '';
+            volumeFuncData.forEach(row => {
+                volumeFuncBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.wlSM}</td><td>${row.volumeFnc.toFixed(3)}</td></tr>`;
+            });
+
+            // Sum of Volume Function (Up to WL) Table
+            const sumOfVolFuncBody = document.getElementById('sumOfVolFuncTable').getElementsByTagName('tbody')[0];
+            sumOfVolFuncBody.innerHTML = '';
+            sumOfVolFuncData.forEach(row => {
+                sumOfVolFuncBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.sumOfVolFnc.toFixed(3)}</td></tr>`;
+            });
+
+            // Underwater Volume Table
+            const underwaterVolumeBody = document.getElementById('underwaterVolumeTable').getElementsByTagName('tbody')[0];
+            underwaterVolumeBody.innerHTML = '';
+            underwaterVolumeData.forEach(row => {
+                underwaterVolumeBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.underwaterVol.toFixed(3)}</td></tr>`;
+            });
+
+            // Displacement Table
+            const displacementBody = document.getElementById('displacementTable').getElementsByTagName('tbody')[0];
+            displacementBody.innerHTML = '';
+            displacementData.forEach(row => {
+                displacementBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.displacement.toFixed(3)}</td></tr>`;
+            });
+
+            // KB Lever Table
+            const kbLeverBody = document.getElementById('kbLeverTable').getElementsByTagName('tbody')[0];
+            kbLeverBody.innerHTML = '';
+            kbLeverData.forEach(row => { 
+                kbLeverBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.lever.toFixed(3)}</td></tr>`;
+            });
+
+            // KB Moment Function Table
+            const kbMomentFuncBody = document.getElementById('kbMomentFuncTable').getElementsByTagName('tbody')[0];
+            kbMomentFuncBody.innerHTML = '';
+            kbMomentFuncData.forEach(row => {
+                kbMomentFuncBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.momentFnc.toFixed(3)}</td></tr>`;
+            });
+
+            // KB Sum of Moment Function Table
+            const kbSumOfMomentFuncBody = document.getElementById('kbSumOfMomentFuncTable').getElementsByTagName('tbody')[0];
+            kbSumOfMomentFuncBody.innerHTML = '';
+            kbSumOfMomentFuncData.forEach(row => {
+                kbSumOfMomentFuncBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.sumOfMomentFnc.toFixed(3)}</td></tr>`;
+            });
+
+            // KB Final Table
+            const kbFinalBody = document.getElementById('kbFinalTable').getElementsByTagName('tbody')[0];
+            kbFinalBody.innerHTML = '';
+            kbFinalValues.forEach((val, index) => {
+                // Use calculatedHydrostaticData[index].draft for waterline label
+                kbFinalBody.innerHTML += `<tr><td>${calculatedHydrostaticData[index].draft.toFixed(3)}</td><td>${val.toFixed(3)}</td></tr>`;
+            });
+
+
+            // LCB Lever Table (Restored)
+            const lcbLeverBody = document.getElementById('lcbLeverTable').getElementsByTagName('tbody')[0];
+            lcbLeverBody.innerHTML = '';
+            lcbLeverData.forEach(row => {
+                lcbLeverBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.lever.toFixed(3)}</td></tr>`;
+            });
+
+            // LCB Moment Function Table (Restored)
+            const lcbMomentFuncBody = document.getElementById('lcbMomentFuncTable').getElementsByTagName('tbody')[0];
+            lcbMomentFuncBody.innerHTML = '';
+            lcbMomentFuncData.forEach(row => {
+                lcbMomentFuncBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.momentFnc.toFixed(3)}</td></tr>`;
+            });
+
+            // LCB Sum of Moment Function Table (Restored)
+            const lcbSumOfMomentFuncBody = document.getElementById('lcbSumOfMomentFuncTable').getElementsByTagName('tbody')[0];
+            lcbSumOfMomentFuncBody.innerHTML = '';
+            lcbSumOfMomentFuncData.forEach(row => {
+                lcbSumOfMomentFuncBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.sumOfMomentFnc.toFixed(3)}</td></tr>`;
+            });
+
+            // LCB Final Table (Restored)
+            const lcbFinalBody = document.getElementById('lcbFinalTable').getElementsByTagName('tbody')[0];
+            lcbFinalBody.innerHTML = '';
+            lcbFinalValues.forEach((val, index) => {
+                lcbFinalBody.innerHTML += `<tr><td>${calculatedHydrostaticData[index].draft.toFixed(3)}</td><td>${val.toFixed(3)}</td></tr>`;
+            });
+
+
+            // LCF Station Levers Table
+            const lcfStationLeverBody = document.getElementById('lcfStationLeverTable').getElementsByTagName('tbody')[0];
+            lcfStationLeverBody.innerHTML = '';
+            lcfStationLevers.forEach((lever, index) => {
+                lcfStationLeverBody.innerHTML += `<tr><td>${globalStationLabels[index]}</td><td>${lever.toFixed(3)}</td></tr>`;
+            });
+
+            // LCF SM * y * Lever Table
+            const lcfSmYLeverTableHead = document.getElementById('lcfSmYLeverTable').getElementsByTagName('thead')[0];
+            const lcfSmYLeverTableBody = document.getElementById('lcfSmYLeverTable').getElementsByTagName('tbody')[0];
+            lcfSmYLeverTableHead.innerHTML = '';
+            lcfSmYLeverTableBody.innerHTML = '';
+
+            if (lcfSmYLeverData.length > 0) {
+                let headerRowHtml = '<tr><th>Waterline</th>';
+                globalStationLabels.forEach(station => {
+                    headerRowHtml += `<th>Stn ${station}</th>`;
+                });
+                lcfSmYLeverTableHead.innerHTML = headerRowHtml + '</tr>';
+
+                globalWaterlineLabels.forEach((wlLabel, wlIdx) => {
+                    let rowHtml = `<tr><td>WL ${wlLabel.toFixed(3)}</td>`;
+                    globalStationLabels.forEach((stationLabel) => {
+                        const val = lcfSmYLeverData[wlIdx].data[stationLabel]; 
+                        rowHtml += `<td>${val !== undefined ? val.toFixed(3) : 'N/A'}</td>`;
+                    });
+                    lcfSmYLeverTableBody.innerHTML += rowHtml + '</tr>';
+                });
+            }
+
+            // LCF Sum of First Moment Table
+            const lcfSumOfFmTableBody = document.getElementById('lcfSumOfFmTable').getElementsByTagName('tbody')[0];
+            lcfSumOfFmTableBody.innerHTML = '';
+            lcfSumOfFmValues.forEach((val, index) => {
+                lcfSumOfFmTableBody.innerHTML += `<tr><td>${calculatedHydrostaticData[index].draft.toFixed(3)}</td><td>${val.toFixed(3)}</td></tr>`;
+            });
+
+            // LCF Final Table
+            const lcfFinalBody = document.getElementById('lcfFinalTable').getElementsByTagName('tbody')[0];
+            lcfFinalBody.innerHTML = '';
+            lcfFinalValues.forEach((val, index) => {
+                lcfFinalBody.innerHTML += `<tr><td>${calculatedHydrostaticData[index].draft.toFixed(3)}</td><td>${val.toFixed(3)}</td></tr>`;
+            });
+
+            // LCF^2 Table
+            const lcfSquaredTableBody = document.getElementById('lcfSquaredTable').getElementsByTagName('tbody')[0];
+            lcfSquaredTableBody.innerHTML = '';
+            lcfSquaredValues.forEach((val, index) => {
+                lcfSquaredTableBody.innerHTML += `<tr><td>${calculatedHydrostaticData[index].draft.toFixed(3)}</td><td>${val.toFixed(3)}</td></tr>`;
+            });
+
+            // KM(L) and MCTC NEW TABLES
+            // SM * y * Lever^2 Table
+            const smYLeverSquaredTableHead = document.getElementById('smYLeverSquaredTable').getElementsByTagName('thead')[0];
+            const smYLeverSquaredTableBody = document.getElementById('smYLeverSquaredTable').getElementsByTagName('tbody')[0];
+            smYLeverSquaredTableHead.innerHTML = '';
+            smYLeverSquaredTableBody.innerHTML = '';
+
+            if (smYLeverSquaredData.length > 0) {
+                let headerRowHtml = '<tr><th>Waterline</th>';
+                globalStationLabels.forEach(station => {
+                    headerRowHtml += `<th>Stn ${station}</th>`;
+                });
+                smYLeverSquaredTableHead.innerHTML = headerRowHtml + '</tr>';
+
+                globalWaterlineLabels.forEach((wlLabel, wlIdx) => {
+                    let rowHtml = `<tr><td>WL ${wlLabel.toFixed(3)}</td>`;
+                    globalStationLabels.forEach((stationLabel) => {
+                        const val = smYLeverSquaredData[wlIdx].data[stationLabel]; 
+                        rowHtml += `<td>${val !== undefined ? val.toFixed(3) : 'N/A'}</td>`;
+                    });
+                    smYLeverSquaredTableBody.innerHTML += rowHtml + '</tr>';
+                });
+            }
+
+            // Sum of Second Moment Table
+            const sumOfSecondMomentBody = document.getElementById('sumOfSecondMomentTable').getElementsByTagName('tbody')[0];
+            sumOfSecondMomentBody.innerHTML = '';
+            sumOfSecondMomentData.forEach(row => {
+                sumOfSecondMomentBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.sumOfSecondMoment.toFixed(3)}</td></tr>`;
+            });
+
+            // Moment of Inertia (Amidship) Table
+            const moiAmidshipBody = document.getElementById('moiAmidshipTable').getElementsByTagName('tbody')[0];
+            moiAmidshipBody.innerHTML = '';
+            momentOfInertiaAmidshipData.forEach(row => {
+                moiAmidshipBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.moiAmidship.toFixed(3)}</td></tr>`;
+            });
+
+            // Moment of Inertia (LCF) Table
+            const moiLcfBody = document.getElementById('moiLcfTable').getElementsByTagName('tbody')[0];
+            moiLcfBody.innerHTML = '';
+            momentOfInertiaLcfData.forEach(row => {
+                moiLcfBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.moiLcf.toFixed(3)}</td></tr>`;
+            });
+
+            // BM(L) Table
+            const bmLBody = document.getElementById('bmLTable').getElementsByTagName('tbody')[0];
+            bmLBody.innerHTML = '';
+            bmLValues.forEach(row => {
+                bmLBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.bmL.toFixed(3)}</td></tr>`;
+            });
+
+            // KM(L) Final Table
+            const kmlFinalBody = document.getElementById('kmlFinalTable').getElementsByTagName('tbody')[0];
+            kmlFinalBody.innerHTML = '';
+            calculatedHydrostaticData.forEach(row => {
+                kmlFinalBody.innerHTML += `<tr><td>${row.draft.toFixed(3)}</td><td>${row.KML.toFixed(3)}</td></tr>`;
+            });
+
+            // MCTC Final Table
+            const mctcFinalBody = document.getElementById('mctcFinalTable').getElementsByTagName('tbody')[0];
+            mctcFinalBody.innerHTML = '';
+            calculatedHydrostaticData.forEach(row => {
+                mctcFinalBody.innerHTML += `<tr><td>${row.draft.toFixed(3)}</td><td>${row.MCTC.toFixed(3)}</td></tr>`;
+            });
+
+            // NEW TABLES FOR KM(T)
+            // SM * (Half-breadths)^3 Table
+            const smYCubedTableHead = document.getElementById('smYCubedTable').getElementsByTagName('thead')[0];
+            const smYCubedTableBody = document.getElementById('smYCubedTable').getElementsByTagName('tbody')[0];
+            smYCubedTableHead.innerHTML = '';
+            smYCubedTableBody.innerHTML = '';
+
+            if (smYCubedData.length > 0) {
+                let headerRowHtml = '<tr><th>Waterline</th>';
+                globalStationLabels.forEach(station => {
+                    headerRowHtml += `<th>Stn ${station}</th>`;
+                });
+                smYCubedTableHead.innerHTML = headerRowHtml + '</tr>';
+
+                globalWaterlineLabels.forEach((wlLabel, wlIdx) => {
+                    let rowHtml = `<tr><td>WL ${wlLabel.toFixed(3)}</td>`;
+                    globalStationLabels.forEach((stationLabel) => {
+                        const val = smYCubedData[wlIdx].data[stationLabel]; 
+                        rowHtml += `<td>${val !== undefined ? val.toFixed(3) : 'N/A'}</td>`;
+                    });
+                    smYCubedTableBody.innerHTML += rowHtml + '</tr>';
+                });
+            }
+
+            // Sum of SM * (Half-breadths)^3 Table
+            const sumOfSmYCubedBody = document.getElementById('sumOfSmYCubedTable').getElementsByTagName('tbody')[0];
+            sumOfSmYCubedBody.innerHTML = '';
+            sumOfSmYCubedData.forEach(row => {
+                sumOfSmYCubedBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.sumOfSmYCubed.toFixed(3)}</td></tr>`;
+            });
+
+            // 2nd Moment (CL) Table
+            const secondMomentCLBody = document.getElementById('secondMomentCLTable').getElementsByTagName('tbody')[0];
+            secondMomentCLBody.innerHTML = '';
+            secondMomentCLData.forEach(row => {
+                secondMomentCLBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.secondMomentCL.toFixed(3)}</td></tr>`;
+            });
+
+            // BM(T) Table
+            const bmTBody = document.getElementById('bmTTable').getElementsByTagName('tbody')[0];
+            bmTBody.innerHTML = '';
+            bmTValues.forEach(row => {
+                bmTBody.innerHTML += `<tr><td>${row.waterline.toFixed(3)}</td><td>${row.bmT.toFixed(3)}</td></tr>`;
+            });
+
+            // KM(T) Final Table
+            const kmTFinalBody = document.getElementById('kmTFinalTable').getElementsByTagName('tbody')[0];
+            kmTFinalBody.innerHTML = '';
+            calculatedHydrostaticData.forEach(row => {
+                kmTFinalBody.innerHTML += `<tr><td>${row.draft.toFixed(3)}</td><td>${row.KMT.toFixed(3)}</td></tr>`;
+            });
+        }
+
+
+        // Function to download the table as CSV
+        function downloadTableAsCSV() {
+            if (calculatedHydrostaticData.length === 0) return;
+
+            const headers = ["Draft (m)", "Displacement (tonnes)", "TPC (tonnes/cm)", "KB (m)", "KM(T) (m)", "KM(L) (m)", "LCB (m)", "LCF (m)", "MCTC (t-m/cm)"];
+            let csvContent = headers.join(',') + '\n';
+
+            calculatedHydrostaticData.forEach(row => {
+                const values = [
+                    row.draft.toFixed(3),
+                    row.Displacement.toFixed(3),
+                    row.TPC.toFixed(3),
+                    row.KB.toFixed(3),
+                    row.KMT.toFixed(3),
+                    row.KML.toFixed(3),
+                    row.LCB.toFixed(3),
+                    row.LCF.toFixed(3),
+                    row.MCTC.toFixed(3)
+                ];
+                csvContent += values.join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hydrostatic_table.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to download the main hydrostatic table as PDF
+        async function downloadTableAsPDF() {
+            const table = document.getElementById('hydrostaticResultsTable');
+            if (!table) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4'); // 'p' for portrait, 'pt' for points, 'a4' size
+            const margin = 20; // Margin from the edge of the page
+
+            // Get the table dimensions and position
+            const tableWidth = table.offsetWidth;
+            const tableHeight = table.offsetHeight;
+
+            // Calculate scale factor to fit the table on the page width
+            const scaleFactor = (doc.internal.pageSize.getWidth() - 2 * margin) / tableWidth;
+
+            // Use html2canvas to render the table
+            const canvas = await html2canvas(table, { scale: 2 }); // Increase scale for better resolution
+            const imgData = canvas.toDataURL('image/png');
+
+            // Calculate image dimensions after scaling
+            const imgWidth = tableWidth * scaleFactor;
+            const imgHeight = tableHeight * scaleFactor;
+
+            // Add the image to the PDF
+            doc.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
+            doc.save('hydrostatic_table.pdf');
+        }
+
+
+        // Function to render the selected graph
+        function renderGraph() {
+            if (hydrostaticChartInstance) {
+                hydrostaticChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('hydrostaticChart').getContext('2d');
+            const graphType = document.getElementById('graphSelect').value;
+
+            if (!graphType || calculatedHydrostaticData.length === 0) {
+                return;
+            }
+
+            const drafts = calculatedHydrostaticData.map(d => d.draft.toFixed(3));
+            let datasets = [];
+            let title = '';
+            let scales = {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Draft (m)',
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
+            };
+
+            const colors = {
+                'Displacement': 'rgb(201, 203, 207)', // Gray
+                'TPC': 'rgb(75, 192, 192)', // Teal
+                'MCTC': 'rgb(70, 190, 100)', // Green
+                'KB': 'rgb(255, 205, 86)', // Yellow
+                'KMT': 'rgb(255, 99, 132)', // Red
+                'KML': 'rgb(54, 162, 235)', // Blue
+                'LCB': 'rgb(255, 159, 64)', // Orange
+                'LCF': 'rgb(153, 102, 255)' // Purple
+            };
+
+            const parameterLabels = {
+                'Displacement': 'Displacement (tonnes)',
+                'TPC': 'TPC (tonnes/cm)',
+                'KB': 'KB (m)',
+                'KMT': 'KM(T) (m)',
+                'KML': 'KM(L) (m)',
+                'LCB': 'LCB (m)',
+                'LCF': 'LCF (m)',
+                'MCTC': 'MCTC (t-m/cm)'
+            };
+
+            if (graphType === 'All') {
+                title = 'All Hydrostatic Parameters vs. Draft';
+                
+                // Define multiple Y-axes
+                scales.y = {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Displacement (tonnes)',
+                        font: { size: 14, weight: 'bold' },
+                        color: colors['Displacement']
+                    },
+                    id: 'y-displacement',
+                    grid: {
+                        drawOnChartArea: false, // Only draw grid lines for the primary axis
+                    },
+                    ticks: {
+                        color: colors['Displacement']
+                    }
+                };
+                scales.y1 = {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Metacentric Heights / Centers (m)',
+                        font: { size: 14, weight: 'bold' },
+                        color: colors['KB'] // Use a representative color
+                    },
+                    id: 'y-meters',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        color: colors['KB']
+                    }
+                };
+                scales.y2 = {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'TPC / MCTC',
+                        font: { size: 14, weight: 'bold' },
+                        color: colors['TPC'] // Use a representative color
+                    },
+                    id: 'y-tpc-mctc',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        color: colors['TPC']
+                    },
+                    // Offset this axis slightly to prevent overlap with y1
+                    // This is a common trick for multiple right axes. Adjust as needed.
+                    // beginAtZero: true // Can be useful if values are always positive
+                };
+
+
+                datasets.push({
+                    label: parameterLabels['Displacement'],
+                    data: calculatedHydrostaticData.map(d => d['Displacement']),
+                    borderColor: colors['Displacement'],
+                    backgroundColor: colors['Displacement'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-displacement'
+                });
+                datasets.push({
+                    label: parameterLabels['TPC'],
+                    data: calculatedHydrostaticData.map(d => d['TPC']),
+                    borderColor: colors['TPC'],
+                    backgroundColor: colors['TPC'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-tpc-mctc'
+                });
+                datasets.push({
+                    label: parameterLabels['MCTC'],
+                    data: calculatedHydrostaticData.map(d => d['MCTC']),
+                    borderColor: colors['MCTC'],
+                    backgroundColor: colors['MCTC'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-tpc-mctc'
+                });
+                datasets.push({
+                    label: parameterLabels['KB'],
+                    data: calculatedHydrostaticData.map(d => d['KB']),
+                    borderColor: colors['KB'],
+                    backgroundColor: colors['KB'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-meters'
+                });
+                datasets.push({
+                    label: parameterLabels['KMT'],
+                    data: calculatedHydrostaticData.map(d => d['KMT']),
+                    borderColor: colors['KMT'],
+                    backgroundColor: colors['KMT'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-meters'
+                });
+                datasets.push({
+                    label: parameterLabels['KML'],
+                    data: calculatedHydrostaticData.map(d => d['KML']),
+                    borderColor: colors['KML'],
+                    backgroundColor: colors['KML'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-meters'
+                });
+                datasets.push({
+                    label: parameterLabels['LCB'],
+                    data: calculatedHydrostaticData.map(d => d['LCB']),
+                    borderColor: colors['LCB'],
+                    backgroundColor: colors['LCB'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-meters'
+                });
+                datasets.push({
+                    label: parameterLabels['LCF'],
+                    data: calculatedHydrostaticData.map(d => d['LCF']),
+                    borderColor: colors['LCF'],
+                    backgroundColor: colors['LCF'] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y-meters'
+                });
+
+            } else {
+                title = `${parameterLabels[graphType]} vs. Draft`;
+                datasets.push({
+                    label: parameterLabels[graphType],
+                    data: calculatedHydrostaticData.map(d => d[graphType]),
+                    borderColor: colors[graphType],
+                    backgroundColor: colors[graphType] + '40',
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    yAxisID: 'y' // Default single Y-axis
+                });
+                scales.y = {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: parameterLabels[graphType],
+                        font: { size: 14 }
+                    },
+                    id: 'y'
+                };
+            }
+
+            hydrostaticChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: drafts,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: title,
+                            font: {
+                                size: 18
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        legend: {
+                            display: graphType === 'All' // Only display legend for 'All' graph
+                        }
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
+                    scales: scales // Use the dynamically created scales object
+                }
+            });
+        }
+
+        // Function to download the graph as PNG
+        function downloadGraphAsPNG() {
+            if (hydrostaticChartInstance) {
+                // Get the canvas element
+                const canvas = document.getElementById('hydrostaticChart');
+
+                // Create a new canvas with a white background
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // Fill the new canvas with white background
+                tempCtx.fillStyle = 'white';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                // Draw the existing chart onto the new canvas
+                tempCtx.drawImage(canvas, 0, 0);
+
+                // Get the image URL from the new canvas
+                const url = tempCanvas.toDataURL('image/png');
+
+                // Create a link and trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'hydrostatic_graph.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }
+
+        // Function to get table data as CSV string
+        function getTableAsCSV(tableId, title) {
+            const table = document.getElementById(tableId);
+            if (!table) return '';
+
+            let csvContent = `"${title}"\n`; // Add title as the first line
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => `"${th.textContent.trim()}"`).join(',');
+            csvContent += headers + '\n';
+
+            table.querySelectorAll('tbody tr').forEach(row => {
+                const rowData = Array.from(row.querySelectorAll('td')).map(td => `"${td.textContent.trim()}"`).join(',');
+                csvContent += rowData + '\n';
+            });
+            csvContent += '\n'; // Add a blank line for separation
+            return csvContent;
+        }
+
+        // Function to download all calculation details as CSV
+        function downloadCalculationDetailsAsCSV() {
+            let fullCsvContent = '';
+            
+            fullCsvContent += getTableAsCSV('smWlTable', '1. SM * Half-breadths (y) for each Waterline');
+            fullCsvContent += getTableAsCSV('sumOfAreaFuncTable', '2. Sum of Area Function (Σ(SM * y))');
+            fullCsvContent += getTableAsCSV('waterplaneAreaTable', '3. Waterplane Area (Aw)');
+            fullCsvContent += getTableAsCSV('tpcTable', '4. TPC (Tonnes Per Centimeter)');
+            fullCsvContent += getTableAsCSV('volumeFuncTable', '5. Volume Function (Aw * WL_SM)');
+            fullCsvContent += getTableAsCSV('sumOfVolFuncTable', '6. Sum of Volume Function (Up to WL)');
+            fullCsvContent += getTableAsCSV('underwaterVolumeTable', '7. Underwater Volume');
+            fullCsvContent += getTableAsCSV('displacementTable', '8. Displacement (tonnes)');
+            fullCsvContent += getTableAsCSV('kbLeverTable', '9. KB Vertical Levers (for KB calculation)');
+            fullCsvContent += getTableAsCSV('kbMomentFuncTable', '10. KB Moment Function (Lever * Volume Fnc)');
+            fullCsvContent += getTableAsCSV('kbSumOfMomentFuncTable', '11. Sum of KB Moment Function (Cumulative)');
+            fullCsvContent += getTableAsCSV('kbFinalTable', '12. KB (Vertical Center of Buoyancy)');
+            fullCsvContent += getTableAsCSV('lcbLeverTable', '13. Lever (for LCB calculation)');
+            fullCsvContent += getTableAsCSV('lcbMomentFuncTable', '14. Moment Function (Lever * Volume Fnc)');
+            fullCsvContent += getTableAsCSV('lcbSumOfMomentFuncTable', '15. Sum of Moment Function (Up to WL)');
+            fullCsvContent += getTableAsCSV('lcbFinalTable', '16. LCB (Longitudinal Center of Buoyancy)');
+            fullCsvContent += getTableAsCSV('lcfStationLeverTable', '17. LCF Station Levers (for LCF calculation)');
+            fullCsvContent += getTableAsCSV('lcfSmYLeverTable', '18. SM * y * Lever for each Waterline (for LCF)');
+            fullCsvContent += getTableAsCSV('lcfSumOfFmTable', '19. Sum of First Moment (SUM of FM) (for LCF)');
+            fullCsvContent += getTableAsCSV('lcfFinalTable', '20. LCF (Longitudinal Center of Flotation)');
+            fullCsvContent += getTableAsCSV('lcfSquaredTable', '21. LCF²');
+            fullCsvContent += getTableAsCSV('smYLeverSquaredTable', '22. SM * y * Lever² (for KM(L) calculation)');
+            fullCsvContent += getTableAsCSV('sumOfSecondMomentTable', '23. Sum of Second Moment (Σ(SM * y * Lever²))');
+            fullCsvContent += getTableAsCSV('moiAmidshipTable', '24. Moment of Inertia (Amidship) (I_xx_amidship)');
+            fullCsvContent += getTableAsCSV('moiLcfTable', '25. Moment of Inertia (LCF) (I_xx_LCF)');
+            fullCsvContent += getTableAsCSV('bmLTable', '26. BM(L) (Longitudinal Metacentric Radius)');
+            fullCsvContent += getTableAsCSV('kmlFinalTable', '27. KM(L) (Longitudinal Metacentric Height)');
+            fullCsvContent += getTableAsCSV('mctcFinalTable', '28. MCTC (Moment to Change Trim 1 cm)');
+            fullCsvContent += getTableAsCSV('smYCubedTable', '29. SM * (Half-breadths)^3 (for KM(T) calculation)');
+            fullCsvContent += getTableAsCSV('sumOfSmYCubedTable', '30. Sum of SM * (Half-breadths)^3 (Σ(SM * y³))');
+            fullCsvContent += getTableAsCSV('secondMomentCLTable', '31. 2nd Moment (CL) (I_yy_amidship)');
+            fullCsvContent += getTableAsCSV('bmTTable', '32. BM(T) (Transverse Metacentric Radius)');
+            fullCsvContent += getTableAsCSV('kmTFinalTable', '33. KM(T) (Transverse Metacentric Height)');
+
+            const blob = new Blob([fullCsvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'hydrostatic_calculation_details.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to download all calculation details as PDF
+        async function downloadCalculationDetailsAsPDF() {
+            const detailsSection = document.getElementById('calculationDetails');
+            if (!detailsSection) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            const margin = 20;
+            let yOffset = margin;
+
+            // Get all h4 titles and their corresponding tables
+            const sections = detailsSection.querySelectorAll('h4');
+            for (const section of sections) {
+                const titleText = section.textContent.trim();
+                const tableWrapper = section.nextElementSibling; // Assuming table wrapper is immediately after h4
+                const table = tableWrapper ? tableWrapper.querySelector('table') : null;
+
+                if (table) {
+                    // Add title to PDF
+                    doc.setFontSize(14);
+                    doc.text(titleText, margin, yOffset);
+                    yOffset += 20; // Space after title
+
+                    // Render table
+                    const canvas = await html2canvas(table, { scale: 2 });
+                    const imgData = canvas.toDataURL('image/png');
+
+                    const imgWidth = doc.internal.pageSize.getWidth() - 2 * margin;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                    // Check if there's enough space on the current page
+                    if (yOffset + imgHeight + margin > doc.internal.pageSize.getHeight()) {
+                        doc.addPage();
+                        yOffset = margin;
+                    }
+
+                    doc.addImage(imgData, 'PNG', margin, yOffset, imgWidth, imgHeight);
+                    yOffset += imgHeight + 30; // Space after table
+                } else {
+                    // If no table, just add the title
+                    doc.setFontSize(14);
+                    doc.text(titleText, margin, yOffset);
+                    yOffset += 20; // Space after title
+                }
+            }
+            doc.save('hydrostatic_calculation_details.pdf');
+        }
+
+
+        // Function to clear all input and result fields
+        function clearInputs() {
+            document.getElementById('hydrostaticForm').reset();
+            document.getElementById('hydrostaticResultsTable').getElementsByTagName('tbody')[0].innerHTML = '';
+            document.getElementById('downloadTableBtn').disabled = true;
+            document.getElementById('downloadTablePdfBtn').disabled = true; // Disable PDF button
+            document.getElementById('graphSelect').value = '';
+            document.getElementById('graphSelect').disabled = true;
+            document.getElementById('downloadGraphBtn').disabled = true;
+            document.getElementById('statusMessages').classList.add('hidden');
+            document.getElementById('errorMessages').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+            document.getElementById('calculationDetails').style.display = 'none'; // Hide calculation details
+            document.getElementById('downloadDetailsCsvBtn').disabled = true; // Disable details CSV button
+            document.getElementById('downloadDetailsPdfBtn').disabled = true; // Disable details PDF button
+
+
+            if (hydrostaticChartInstance) {
+                hydrostaticChartInstance.destroy();
+                hydrostaticChartInstance = null;
+            }
+            calculatedHydrostaticData = [];
+            globalStationLabels = [];
+            globalWaterlineLabels = [];
+            smTimesWlData = [];
+            sumOfAreaFuncData = [];
+            waterplaneAreaData = [];
+            tpcData = [];
+            volumeFuncData = [];
+            sumOfVolFuncData = [];
+            underwaterVolumeData = [];
+            displacementData = [];
+            
+            // Clear KB-related intermediate calculation data
+            kbLeverData = [];
+            kbMomentFuncData = [];
+            kbSumOfMomentFuncData = [];
+            kbFinalValues = [];
+
+            // Clear LCB-related intermediate calculation data (restored)
+            lcbLeverData = [];
+            lcbMomentFuncData = [];
+            lcbSumOfMomentFuncData = [];
+            lcbFinalValues = [];
+
+            // Clear LCF-related intermediate calculation data
+            lcfStationLevers = [];
+            lcfSmYLeverData = [];
+            lcfSumOfFmValues = [];
+            lcfFinalValues = [];
+            lcfSquaredValues = [];
+
+            // Clear KM(L) and MCTC related intermediate calculation data
+            smYLeverSquaredData = [];
+            sumOfSecondMomentData = [];
+            momentOfInertiaAmidshipData = [];
+            momentOfInertiaLcfData = [];
+            bmLValues = [];
+
+            // Clear KM(T) related intermediate calculation data (NEW)
+            smYCubedData = [];
+            sumOfSmYCubedData = [];
+            secondMomentCLData = [];
+            bmTValues = [];
+
+            document.getElementById('statusMessages').classList.remove('bg-green-100', 'border-green-200', 'text-green-700');
+            document.getElementById('statusMessages').classList.add('bg-blue-100', 'border-blue-200', 'text-blue-700');
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('hydrostaticForm');
+            const calculateBtn = document.getElementById('calculateHydrostaticsBtn');
+            const clearBtn = document.getElementById('clearInputsBtn');
+            const downloadTableBtn = document.getElementById('downloadTableBtn');
+            const downloadTablePdfBtn = document.getElementById('downloadTablePdfBtn'); // New PDF button
+            const graphSelect = document.getElementById('graphSelect');
+            const downloadGraphBtn = document.getElementById('downloadGraphBtn');
+            const downloadDetailsCsvBtn = document.getElementById('downloadDetailsCsvBtn'); // New details CSV button
+            const downloadDetailsPdfBtn = document.getElementById('downloadDetailsPdfBtn'); // New details PDF button
+            const menuButton = document.getElementById('menu-button');
+            const navLinks = document.getElementById('nav-links');
+
+            // Handle form submission for hydrostatic calculation
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent default form submission
+                calculateHydrostatics();
+            });
+
+            // Handle clear button click
+            clearBtn.addEventListener('click', clearInputs);
+
+            // Handle download table button click
+            downloadTableBtn.addEventListener('click', downloadTableAsCSV);
+            downloadTablePdfBtn.addEventListener('click', downloadTableAsPDF); // Event listener for PDF button
+
+            // Handle graph selection change
+            graphSelect.addEventListener('change', renderGraph);
+
+            // Handle download graph button click
+            downloadGraphBtn.addEventListener('click', downloadGraphAsPNG);
+
+            // Handle download calculation details buttons
+            downloadDetailsCsvBtn.addEventListener('click', downloadCalculationDetailsAsCSV);
+            downloadDetailsPdfBtn.addEventListener('click', downloadCalculationDetailsAsPDF);
+
+            // Mobile menu toggle
+            menuButton.addEventListener('click', () => {
+                navLinks.classList.toggle('hidden');
+                navLinks.classList.toggle('flex');
+            });
+        });
+    </script>
+</body>
+</html>

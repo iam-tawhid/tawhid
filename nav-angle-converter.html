@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects Portfolio - NavAngle Converter</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Link to external stylesheet (assuming style.css is external and provides base styling) -->
+    <link rel="stylesheet" href="style.css">
+     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        /* Additional styles specific to the converter tool */
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .input-group label {
+            min-width: 120px;
+            font-weight: 500;
+            color: #4b5563; /* gray-700 */
+        }
+        .input-group input[type="number"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input[type="number"]:focus {
+            border-color: #6366f1; /* indigo-500 */
+        }
+        .input-group select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 8px;
+            background-color: white;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group select:focus {
+            border-color: #6366f1; /* indigo-500 */
+        }
+        .result-display-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            background-color: #f9fafb; /* gray-50 */
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .result-display-group label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #1f2937; /* gray-900 */
+        }
+        .result-display-group span {
+            display: block;
+            margin-top: 4px;
+            font-size: 1.125rem; /* text-lg */
+            color: #4b5563; /* gray-700 */
+        }
+        .result-display-group input {
+            background-color: #f3f4f6; /* Light gray for results inputs */
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #1f2937;
+            font-weight: 500;
+            flex-grow: 1;
+            cursor: default; /* Make it look non-editable */
+        }
+        .result-display-group select {
+            background-color: #f3f4f6; /* Light gray for results selects */
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #1f2937;
+            font-weight: 500;
+            cursor: default; /* Make it look non-editable */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <!-- Brand/Logo -->
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wider">iamtawhid</a>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="text-white lg:hidden focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div id="nav-links" class="hidden lg:flex flex-col lg:flex-row lg:items-center w-full lg:w-auto mt-4 lg:mt-0 space-y-3 lg:space-y-0 lg:space-x-8">
+                <a href="index.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Home</a>
+                <a href="nav-angle-converter.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md active">NavAngle Converter</a>
+                
+                <!-- Automation Dropdown -->
+                <div class="relative group">
+                    <a href="javascript:void(0)" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">
+                        Automation <i class="fas fa-chevron-down text-sm ml-1 group-hover:rotate-180 transition-transform duration-300"></i>
+                    </a>
+                    <div class="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 top-full bg-white text-gray-800 rounded-md shadow-lg py-2 w-56 lg:w-48 transform -translate-x-1/2 lg:translate-x-0 left-1/2 lg:left-0 z-10">
+                        <a href="ship-lines-plan-drawing.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Lines Plan Drawing</a>
+                        <a href="ship-hydrostatic-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 ease-in-out text-base">Ship Hydrostatic Calculation</a>
+                        <a href="ship-trim-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 text-base">Ship Trim Calculation</a>
+                    </div>
+                </div>
+                
+                <a href="contact.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-6 md:p-8">
+
+        <!-- NavAngle Converter Tool -->
+        <section id="nav-angle-converter" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 text-center">Navigation Parameter Converter</h2>
+            <p class="text-lg text-gray-700 leading-relaxed mb-8 text-center">
+                Enter your navigation parameters below to convert and see related values.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Input Section -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Input Parameters</h3>
+
+                    <!-- Input Fields for Navigation Parameters -->
+
+                    <!-- Initial Position (Latitude) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Initial Position (Latitude)</label>
+                        <div class="input-group">
+                            <input type="number" id="initialLatDeg" placeholder="Deg" min="0" max="90" class="w-1/3" aria-label="Degrees Latitude">
+                            <input type="number" id="initialLatMin" placeholder="Min" min="0" max="59" class="w-1/3" aria-label="Minutes Latitude">
+                            <input type="number" id="initialLatSec" placeholder="Sec" min="0" max="59" step="0.1" class="w-1/3" aria-label="Seconds Latitude">
+                            <select id="initialLatDir" class="w-auto" aria-label="Direction Latitude">
+                                <option value="N">N</option>
+                                <option value="S">S</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Initial Position (Longitude) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Initial Position (Longitude)</label>
+                        <div class="input-group">
+                            <input type="number" id="initialLongDeg" placeholder="Deg" min="0" max="180" class="w-1/3" aria-label="Degrees Longitude">
+                            <input type="number" id="initialLongMin" placeholder="Min" min="0" max="59" class="w-1/3" aria-label="Minutes Longitude">
+                            <input type="number" id="initialLongSec" placeholder="Sec" min="0" max="59" step="0.1" class="w-1/3" aria-label="Seconds Longitude">
+                            <select id="initialLongDir" class="w-auto" aria-label="Direction Longitude">
+                                <option value="E">E</option>
+                                <option value="W">W</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Final Position (Latitude) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Final Position (Latitude)</label>
+                        <div class="input-group">
+                            <input type="number" id="finalLatDeg" placeholder="Deg" min="0" max="90" class="w-1/3" aria-label="Degrees Latitude">
+                            <input type="number" id="finalLatMin" placeholder="Min" min="0" max="59" class="w-1/3" aria-label="Minutes Latitude">
+                            <input type="number" id="finalLatSec" placeholder="Sec" min="0" max="59" step="0.1" class="w-1/3" aria-label="Seconds Latitude">
+                            <select id="finalLatDir" class="w-auto" aria-label="Direction Latitude">
+                                <option value="N">N</option>
+                                <option value="S">S</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Final Position (Longitude) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Final Position (Longitude)</label>
+                        <div class="input-group">
+                            <input type="number" id="finalLongDeg" placeholder="Deg" min="0" max="180" class="w-1/3" aria-label="Degrees Longitude">
+                            <input type="number" id="finalLongMin" placeholder="Min" min="0" max="59" class="w-1/3" aria-label="Minutes Longitude">
+                            <input type="number" id="finalLongSec" placeholder="Sec" min="0" max="59" step="0.1" class="w-1/3" aria-label="Seconds Longitude">
+                            <select id="finalLongDir" class="w-auto" aria-label="Direction Longitude">
+                                <option value="E">E</option>
+                                <option value="W">W</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- D.Lat (Difference in Latitude) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">D.Lat (Difference in Latitude)</label>
+                        <div class="input-group">
+                            <input type="number" id="dLatDeg" placeholder="Deg" min="0" max="90" class="w-1/3" aria-label="Degrees D.Lat">
+                            <input type="number" id="dLatMin" placeholder="Min" min="0" max="59" class="w-1/3" aria-label="Minutes D.Lat">
+                            <input type="number" id="dLatSec" placeholder="Sec" min="0" max="59" step="0.1" class="w-1/3" aria-label="Seconds D.Lat">
+                            <select id="dLatDir" class="w-auto" aria-label="Direction D.Lat">
+                                <option value="N">N</option>
+                                <option value="S">S</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- D.Long (Difference in Longitude) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">D.Long (Difference in Longitude)</label>
+                        <div class="input-group">
+                            <input type="number" id="dLongDeg" placeholder="Deg" min="0" max="180" class="w-1/3" aria-label="Degrees D.Long">
+                            <input type="number" id="dLongMin" placeholder="Min" min="0" max="59" class="w-1/3" aria-label="Minutes D.Long">
+                            <input type="number" id="dLongSec" placeholder="Sec" min="0" max="59" step="0.1" class="w-1/3" aria-label="Seconds D.Long">
+                            <select id="dLongDir" class="w-auto" aria-label="Direction D.Long">
+                                <option value="E">E</option>
+                                <option value="W">W</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Variation -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Variation</label>
+                        <div class="input-group">
+                            <input type="number" id="variationDeg" placeholder="Deg" min="0" max="180" class="w-1/2" aria-label="Degrees Variation">
+                            <input type="number" id="variationMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes Variation">
+                            <select id="variationDir" class="w-auto" aria-label="Direction Variation">
+                                <option value="E">E</option>
+                                <option value="W">W</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Deviation -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Deviation</label>
+                        <div class="input-group">
+                            <input type="number" id="deviationDeg" placeholder="Deg" min="0" max="180" class="w-1/2" aria-label="Degrees Deviation">
+                            <input type="number" id="deviationMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes Deviation">
+                            <select id="deviationDir" class="w-auto" aria-label="Direction Deviation">
+                                <option value="E">E</option>
+                                <option value="W">W</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- True Course -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">True Course</label>
+                        <div class="input-group">
+                            <input type="number" id="trueCourseDeg" placeholder="Deg" min="0" max="360" class="w-1/2" aria-label="Degrees True Course">
+                            <input type="number" id="trueCourseMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes True Course">
+                        </div>
+                    </div>
+
+                    <!-- Compass Course -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Compass Course</label>
+                        <div class="input-group">
+                            <input type="number" id="compassCourseDeg" placeholder="Deg" min="0" max="360" class="w-1/2" aria-label="Degrees Compass Course">
+                            <input type="number" id="compassCourseMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes Compass Course">
+                        </div>
+                    </div>
+
+                    <!-- Magnetic Course (New Input Field) -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Magnetic Course</label>
+                        <div class="input-group">
+                            <input type="number" id="magneticCourseDeg" placeholder="Deg" min="0" max="360" class="w-1/2" aria-label="Degrees Magnetic Course">
+                            <input type="number" id="magneticCourseMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes Magnetic Course">
+                        </div>
+                    </div>
+
+                    <!-- Compass Error -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Compass Error</label>
+                        <div class="input-group">
+                            <input type="number" id="compassErrorDeg" placeholder="Deg" min="0" max="180" class="w-1/2" aria-label="Degrees Compass Error">
+                            <input type="number" id="compassErrorMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes Compass Error">
+                            <select id="compassErrorDir" class="w-auto" aria-label="Direction Compass Error">
+                                <option value="E">E</option>
+                                <option value="W">W</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- True Bearing -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">True Bearing</label>
+                        <div class="input-group">
+                            <input type="number" id="trueBearingDeg" placeholder="Deg" min="0" max="360" class="w-1/2" aria-label="Degrees True Bearing">
+                            <input type="number" id="trueBearingMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes True Bearing">
+                            <select id="trueBearingDir" class="w-auto" aria-label="Direction True Bearing">
+                                <option value="T">T</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Compass Bearing -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-lg font-medium mb-2">Compass Bearing</label>
+                        <div class="input-group">
+                            <input type="number" id="compassBearingDeg" placeholder="Deg" min="0" max="360" class="w-1/2" aria-label="Degrees Compass Bearing">
+                            <input type="number" id="compassBearingMin" placeholder="Min" min="0" max="59" class="w-1/2" aria-label="Minutes Compass Bearing">
+                            <select id="compassBearingDir" class="w-auto" aria-label="Direction Compass Bearing">
+                                <option value="C">C</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-4 mt-8">
+                        <button id="calculateBtn" class="bg-indigo-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">
+                            <i class="fas fa-calculator mr-2"></i> Calculate
+                        </button>
+                        <button id="clearBtn" class="bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-400 transition duration-300 transform hover:scale-105">
+                            <i class="fas fa-redo mr-2"></i> Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Conversion Results</h3>
+
+                    <div class="mb-4">
+                        <label for="resultTypeSelect" class="block text-gray-700 text-lg font-medium mb-2">Select Result to Display:</label>
+                        <select id="resultTypeSelect" class="w-full p-2 border border-gray-300 rounded-md bg-white focus:border-indigo-500">
+                            <option value="">-- Select a Parameter --</option>
+                            <option value="initialPositionLat">Initial Position (Latitude)</option>
+                            <option value="initialPositionLong">Initial Position (Longitude)</option>
+                            <option value="finalPositionLat">Final Position (Latitude)</option>
+                            <option value="finalPositionLong">Final Position (Longitude)</option>
+                            <option value="dLat">D.Lat (Difference in Latitude)</option>
+                            <option value="dLong">D.Long (Difference in Longitude)</option>
+                            <option value="variation">Variation</option>
+                            <option value="deviation">Deviation</option>
+                            <option value="trueCourse">True Course</option>
+                            <option value="compassCourse">Compass Course</option>
+                            <option value="magneticCourse">Magnetic Course</option>
+                            <option value="compassError">Compass Error</option>
+                            <option value="trueBearing">True Bearing</option>
+                            <option value="compassBearing">Compass Bearing</option>
+                        </select>
+                    </div>
+
+                    <!-- Required Inputs Display -->
+                    <div class="mt-4 text-sm text-gray-700 font-medium">
+                        Required Inputs: <span id="requiredInputsList" class="font-normal italic text-gray-600">None selected or requirements not defined.</span>
+                    </div>
+
+
+                    <div id="selected-result-display" class="result-display-group flex-wrap justify-between mt-4">
+                        <label id="resultLabel">Result:</label>
+                        <input type="number" id="resultDeg" placeholder="Deg" readonly class="w-1/3">
+                        <input type="number" id="resultMin" placeholder="Min" readonly class="w-1/3">
+                        <input type="number" id="resultSec" placeholder="Sec" readonly class="w-1/3">
+                        <select id="resultDir" class="w-auto" disabled>
+                            <!-- Options will be dynamically populated by JS -->
+                        </select>
+                    </div>
+
+                    <div class="mt-4 text-sm text-gray-500 italic">
+                        Select a parameter from the dropdown and click 'Calculate' to see the result here.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+     <footer class="bg-gray-800 text-white p-6 text-center text-sm shadow-inner mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2025 iamtawhid. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="https://www.linkedin.com/in/iamtawhid/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-blue-400 transition-colors duration-300">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="https://github.com/iam-tawhid" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-400 transition-colors duration-300">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="mailto:iamtawhidhassan@gmail.com" class="text-white hover:text-red-400 transition-colors duration-300">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Helper function to convert Degrees, Minutes, Seconds to Decimal Degrees
+        function dmsToDecimal(deg, min, sec, dir) {
+            let d = parseFloat(deg || 0);
+            let m = parseFloat(min || 0);
+            let s = parseFloat(sec || 0); 
+
+            if (isNaN(d) || isNaN(m) || (sec !== null && isNaN(s))) {
+                return NaN;
+            }
+
+            let decimal = d + (m / 60) + (s / 3600);
+            if (dir === 'S' || dir === 'W') {
+                return -decimal;
+            }
+            return decimal;
+        }
+
+        // Helper function to convert Decimal Degrees to DMS object
+        function decimalToDMS(decimal, type = 'angle') {
+            const absolute = Math.abs(decimal);
+            const deg = Math.floor(absolute);
+            const remainderMin = (absolute - deg) * 60;
+            const min = Math.floor(remainderMin);
+            const sec = (remainderMin - min) * 60;
+
+            let dir = '';
+            // Determine direction based on type and sign of decimal value
+            if (type.includes('Lat') || type.includes('dLat')) {
+                dir = decimal >= 0 ? 'N' : 'S';
+            } else if (type.includes('Long') || type.includes('dLong') || type === 'variation' || type === 'deviation' || type === 'compassError') {
+                dir = decimal >= 0 ? 'E' : 'W';
+            } else if (type === 'trueBearing') {
+                dir = 'T';
+            } else if (type === 'compassBearing') {
+                dir = 'C';
+            }
+            // For 'course' types, dir remains an empty string as they have no explicit N/S/E/W/T/C
+
+            return { deg: deg, min: min, sec: sec.toFixed(1), dir: dir };
+        }
+
+        // Function to get input values from a group
+        function getInputGroupValue(prefix, hasSeconds = true, hasDirection = true) {
+            const deg = document.getElementById(`${prefix}Deg`).value;
+            const min = document.getElementById(`${prefix}Min`).value;
+            let sec = hasSeconds ? document.getElementById(`${prefix}Sec`)?.value : null; 
+            let dir = hasDirection ? document.getElementById(`${prefix}Dir`)?.value : null; 
+
+            return { deg, min, sec, dir };
+        }
+
+        // Function to populate the result display fields
+        function displayResultInDMSFields(dmsObject, type) {
+            document.getElementById('resultDeg').value = dmsObject.deg !== null ? dmsObject.deg : '';
+            document.getElementById('resultMin').value = dmsObject.min !== null ? dmsObject.min : '';
+            
+            const resultSecInput = document.getElementById('resultSec');
+            const resultDirSelect = document.getElementById('resultDir');
+
+            // Handle seconds visibility and value
+            if (type === 'trueCourse' || type === 'compassCourse' || type === 'magneticCourse' || type === 'trueBearing' || type === 'compassBearing') {
+                resultSecInput.value = '';
+                resultSecInput.style.display = 'none'; // Hide seconds for courses and bearings as per conventional display
+            } else {
+                resultSecInput.value = dmsObject.sec !== null ? parseFloat(dmsObject.sec).toFixed(1) : '';
+                resultSecInput.style.display = 'block'; // Show seconds for others
+            }
+
+            // Handle direction select options and value
+            resultDirSelect.innerHTML = ''; // Clear previous options
+            resultDirSelect.disabled = true; // Disable by default
+
+            if (type.includes('Lat') || type.includes('dLat')) {
+                ['N', 'S'].forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    resultDirSelect.appendChild(opt);
+                });
+                resultDirSelect.value = dmsObject.dir;
+                resultDirSelect.disabled = false;
+            } else if (type.includes('Long') || type.includes('dLong') || type === 'variation' || type === 'deviation' || type === 'compassError') {
+                ['E', 'W'].forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = d;
+                    resultDirSelect.appendChild(opt);
+                });
+                resultDirSelect.value = dmsObject.dir;
+                resultDirSelect.disabled = false;
+            } else if (type === 'trueBearing') {
+                const optT = document.createElement('option');
+                optT.value = 'T';
+                optT.textContent = 'T';
+                resultDirSelect.appendChild(optT);
+                resultDirSelect.value = 'T';
+                resultDirSelect.disabled = false;
+            } else if (type === 'compassBearing') {
+                const optC = document.createElement('option');
+                optC.value = 'C';
+                optC.textContent = 'C';
+                resultDirSelect.appendChild(optC);
+                resultDirSelect.value = 'C';
+                resultDirSelect.disabled = false;
+            }
+        }
+
+        // Normalizes an angle to the range of -180 to +180 degrees
+        function normalizeSignedAngle(angle) {
+            let normalized = angle % 360;
+            if (normalized > 180) {
+                normalized -= 360;
+            } else if (normalized <= -180) {
+                normalized += 360;
+            }
+            return normalized;
+        }
+
+        // Normalizes an angle to the range of 0 to 360 degrees
+        function normalizeCourseBearing(angle) {
+            let normalized = angle % 360;
+            if (normalized < 0) {
+                normalized += 360;
+            }
+            return normalized;
+        }
+
+        // Mapping for required inputs display
+        const parameterRequirements = {
+            'initialPositionLat': ['Final Position (Latitude)', 'D.Lat (Difference in Latitude)'],
+            'initialPositionLong': ['Final Position (Longitude)', 'D.Long (Difference in Longitude)'],
+            'finalPositionLat': ['Initial Position (Latitude)', 'D.Lat (Difference in Latitude)'],
+            'finalPositionLong': ['Initial Position (Longitude)', 'D.Long (Difference in Longitude)'],
+            'dLat': ['Final Position (Latitude)', 'Initial Position (Latitude)'],
+            'dLong': ['Final Position (Longitude)', 'Initial Position (Longitude)'],
+            'variation': ['Compass Error', 'Deviation'], 
+            'deviation': ['Compass Error', 'Variation'], 
+            'trueCourse': ['Compass Course', 'Deviation', 'Variation'], 
+            'compassCourse': ['True Course', 'Variation', 'Deviation'], 
+            'magneticCourse': ['True Course', 'Variation'], 
+            'compassError': ['Variation', 'Deviation'], 
+            'trueBearing': ['Compass Bearing', 'Deviation', 'Variation'], 
+            'compassBearing': ['True Bearing', 'Deviation', 'Variation'] 
+        };
+
+        function displayRequiredInputs() {
+            const selectedType = document.getElementById('resultTypeSelect').value;
+            const requiredInputsListElement = document.getElementById('requiredInputsList');
+            
+            if (selectedType && parameterRequirements[selectedType]) {
+                let required = parameterRequirements[selectedType];
+                let displayText = '';
+
+                // Check if it's an array of arrays (for multiple formula options)
+                if (Array.isArray(required[0])) { 
+                    displayText = required.map(option => `(${option.join(', ')})`).join(' OR ');
+                } else { // Single formula option
+                    displayText = required.join(', ');
+                }
+                requiredInputsListElement.textContent = displayText;
+            } else {
+                requiredInputsListElement.textContent = 'None selected or requirements not defined.';
+            }
+        }
+
+
+        // Main calculation function
+        function calculateConversion() {
+            // Clear previous result display
+            document.getElementById('resultDeg').value = '';
+            document.getElementById('resultMin').value = '';
+            document.getElementById('resultSec').value = '';
+            document.getElementById('resultDir').innerHTML = '';
+            document.getElementById('resultDir').disabled = true;
+            document.getElementById('resultLabel').textContent = 'Result:';
+            document.getElementById('resultSec').style.display = 'block';
+
+            const selectedResultType = document.getElementById('resultTypeSelect').value;
+
+            if (!selectedResultType) {
+                document.getElementById('resultLabel').textContent = 'Please select a parameter to calculate.';
+                return;
+            }
+
+            // Read all input values
+            const inputs = {
+                initialLat: getInputGroupValue('initialLat'),
+                initialLong: getInputGroupValue('initialLong'),
+                finalLat: getInputGroupValue('finalLat'),
+                finalLong: getInputGroupValue('finalLong'),
+                dLat: getInputGroupValue('dLat'),
+                dLong: getInputGroupValue('dLong'),
+                variation: getInputGroupValue('variation', false),
+                deviation: getInputGroupValue('deviation', false),
+                compassError: getInputGroupValue('compassError', false),
+                trueCourse: getInputGroupValue('trueCourse', false, false),
+                compassCourse: getInputGroupValue('compassCourse', false, false),
+                magneticCourse: getInputGroupValue('magneticCourse', false, false),
+                trueBearing: getInputGroupValue('trueBearing', false, true),
+                compassBearing: getInputGroupValue('compassBearing', false, true),
+            };
+
+            // Convert inputs to decimal degrees (where applicable)
+            const inputDecimals = {};
+            for (const key in inputs) {
+                const { deg, min, sec, dir } = inputs[key];
+                // Note: dmsToDecimal function already handles dir for N/S and E/W
+                inputDecimals[key + 'Dec'] = dmsToDecimal(deg, min, sec, dir);
+            }
+
+            let calculatedValue = null;
+            let resultTypeForDisplay = selectedResultType;
+
+            document.getElementById('resultLabel').textContent = `${document.getElementById('resultTypeSelect').options[document.getElementById('resultTypeSelect').selectedIndex].text}:`;
+
+            switch (selectedResultType) {
+                case 'initialPositionLat':
+                    // 1. Initial Position (Latitude) = Final Position (Latitude) - D.Lat (Difference in Latitude)
+                    if (!isNaN(inputDecimals.finalLatDec) && !isNaN(inputDecimals.dLatDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.finalLatDec - inputDecimals.dLatDec);
+                    }
+                    break;
+                case 'initialPositionLong':
+                    // 2. Initial Position (Longitude) = Final Position (Longitude) - D.Long (Difference in Longitude)
+                    if (!isNaN(inputDecimals.finalLongDec) && !isNaN(inputDecimals.dLongDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.finalLongDec - inputDecimals.dLongDec);
+                    }
+                    break;
+                case 'finalPositionLat':
+                    // 3. Final Position (Latitude) = Initial Position (Latitude) + D.Lat (Difference in Latitude)
+                    if (!isNaN(inputDecimals.initialLatDec) && !isNaN(inputDecimals.dLatDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.initialLatDec + inputDecimals.dLatDec);
+                    }
+                    break;
+                case 'finalPositionLong':
+                    // 4. Final Position (Longitude) = Initial Position (Longitude) + D.Long (Difference in Longitude)
+                    if (!isNaN(inputDecimals.initialLongDec) && !isNaN(inputDecimals.dLongDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.initialLongDec + inputDecimals.dLongDec);
+                    }
+                    break;
+                case 'dLat':
+                    // 5. D.Lat (Difference in Latitude) = Final Position (Latitude) - Initial Position (Latitude)
+                    if (!isNaN(inputDecimals.finalLatDec) && !isNaN(inputDecimals.initialLatDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.finalLatDec - inputDecimals.initialLatDec);
+                    }
+                    break;
+                case 'dLong':
+                    // 6. D.Long (Difference in Longitude) = Final Position (Longitude) - Initial Position (Longitude)
+                    if (!isNaN(inputDecimals.finalLongDec) && !isNaN(inputDecimals.initialLongDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.finalLongDec - inputDecimals.initialLongDec);
+                    }
+                    break;
+                case 'variation':
+                    // 7. Variation = Compass Error - Deviation
+                    if (!isNaN(inputDecimals.compassErrorDec) && !isNaN(inputDecimals.deviationDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.compassErrorDec - inputDecimals.deviationDec);
+                    } 
+                    break;
+                case 'deviation':
+                    // 8. Deviation = Compass Error - Variation
+                    if (!isNaN(inputDecimals.compassErrorDec) && !isNaN(inputDecimals.variationDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.compassErrorDec - inputDecimals.variationDec);
+                    } 
+                    break;
+                case 'trueCourse':
+                    // 9. True Course = Compass Course + Deviation + Variation
+                    if (!isNaN(inputDecimals.compassCourseDec) && !isNaN(inputDecimals.deviationDec) && !isNaN(inputDecimals.variationDec)) {
+                        calculatedValue = normalizeCourseBearing(inputDecimals.compassCourseDec + inputDecimals.deviationDec + inputDecimals.variationDec);
+                    }
+                    break;
+                case 'compassCourse':
+                    // 10. Compass Course = True Course - Variation - Deviation
+                    if (!isNaN(inputDecimals.trueCourseDec) && !isNaN(inputDecimals.variationDec) && !isNaN(inputDecimals.deviationDec)) {
+                        calculatedValue = normalizeCourseBearing(inputDecimals.trueCourseDec - inputDecimals.variationDec - inputDecimals.deviationDec);
+                    }
+                    break;
+                case 'magneticCourse':
+                    // 11. Magnetic Course = True Course - Variation
+                    if (!isNaN(inputDecimals.trueCourseDec) && !isNaN(inputDecimals.variationDec)) {
+                        calculatedValue = normalizeCourseBearing(inputDecimals.trueCourseDec - inputDecimals.variationDec);
+                    }
+                    break;
+                case 'compassError':
+                    // 13. Compass Error = Variation + Deviation
+                    if (!isNaN(inputDecimals.variationDec) && !isNaN(inputDecimals.deviationDec)) {
+                        calculatedValue = normalizeSignedAngle(inputDecimals.variationDec + inputDecimals.deviationDec);
+                    }
+                    break;
+                case 'trueBearing':
+                    // 14. True Bearing = Compass Bearing + Deviation + Variation
+                    if (!isNaN(inputDecimals.compassBearingDec) && !isNaN(inputDecimals.deviationDec) && !isNaN(inputDecimals.variationDec)) {
+                        calculatedValue = normalizeCourseBearing(inputDecimals.compassBearingDec + inputDecimals.deviationDec + inputDecimals.variationDec);
+                    }
+                    break;
+                case 'compassBearing':
+                    // 15. Compass Bearing = True Bearing - Deviation - Variation
+                    if (!isNaN(inputDecimals.trueBearingDec) && !isNaN(inputDecimals.deviationDec) && !isNaN(inputDecimals.variationDec)) {
+                        calculatedValue = normalizeCourseBearing(inputDecimals.trueBearingDec - inputDecimals.deviationDec - inputDecimals.variationDec);
+                    }
+                    break;
+                default:
+                    calculatedValue = null;
+            }
+
+            // Display the result
+            if (calculatedValue !== null && !isNaN(calculatedValue)) { 
+                const dms = decimalToDMS(calculatedValue, resultTypeForDisplay);
+                displayResultInDMSFields(dms, resultTypeForDisplay);
+            } else {
+                document.getElementById('resultLabel').textContent = `Cannot calculate ${document.getElementById('resultTypeSelect').options[document.getElementById('resultTypeSelect').selectedIndex].text} with provided inputs. Please ensure required fields are filled.`;
+                // Clear result fields if calculation fails
+                document.getElementById('resultDeg').value = '';
+                document.getElementById('resultMin').value = '';
+                document.getElementById('resultSec').value = '';
+                document.getElementById('resultDir').innerHTML = '';
+                document.getElementById('resultDir').disabled = true;
+            }
+        }
+
+        // Function to clear all input and result fields
+        function clearFields() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            document.querySelectorAll('select').forEach(select => {
+                // Reset input dropdowns to default N/E or T/C
+                const id = select.id;
+                if (id.includes('LatDir')) select.value = 'N';
+                else if (id.includes('LongDir')) select.value = 'E';
+                else if (id.includes('variationDir') || id.includes('deviationDir') || id.includes('compassErrorDir')) select.value = 'E'; 
+                else if (id.includes('trueBearingDir')) select.value = 'T';
+                else if (id.includes('compassBearingDir')) select.value = 'C';
+            });
+            
+            // Clear result display fields
+            document.getElementById('resultTypeSelect').value = ''; // Reset result type selection
+            document.getElementById('resultDeg').value = '';
+            document.getElementById('resultMin').value = '';
+            document.getElementById('resultSec').value = '';
+            document.getElementById('resultDir').innerHTML = ''; // Clear options
+            document.getElementById('resultDir').disabled = true;
+            document.getElementById('resultLabel').textContent = 'Result:'; // Reset label
+            document.getElementById('resultSec').style.display = 'block'; // Ensure seconds input is visible after clear
+            displayRequiredInputs(); // Clear required inputs display
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            calculateBtn.addEventListener('click', calculateConversion);
+            clearBtn.addEventListener('click', clearFields);
+
+            // Mobile menu toggle
+            const menuButton = document.getElementById('menu-button');
+            const navLinks = document.getElementById('nav-links');
+
+            menuButton.addEventListener('click', () => {
+                navLinks.classList.toggle('hidden');
+                navLinks.classList.toggle('flex');
+            });
+
+            // Event listener for required inputs display on dropdown change
+            document.getElementById('resultTypeSelect').addEventListener('change', displayRequiredInputs);
+            displayRequiredInputs(); // Initial call to set the display based on default selection
+        });
+    </script>
+</body>
+</html>

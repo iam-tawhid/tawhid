@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects Portfolio - Ship Lines Plan Drawing</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Link to external stylesheet (assuming style.css exists and provides base styling) -->
+    <link rel="stylesheet" href="style.css">
+     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        /* Specific styles for this page */
+        .nav-link.active {
+            font-weight: bold;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            color: #d1d5db; /* gray-300 */
+        }
+        @media (max-width: 1023px) {
+            #nav-links.flex {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            font-weight: 500;
+            color: #4b5563; /* gray-700 */
+            margin-bottom: 0.5rem;
+        }
+        .input-group input[type="number"],
+        .input-group textarea {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input[type="number"]:focus,
+        .input-group textarea:focus {
+            border-color: #6366f1; /* indigo-500 */
+        }
+        #offsetTableInput {
+            min-height: 150px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <!-- Brand/Logo -->
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wider">iamtawhid</a>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="text-white lg:hidden focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div id="nav-links" class="hidden lg:flex flex-col lg:flex-row lg:items-center w-full lg:w-auto mt-4 lg:mt-0 space-y-3 lg:space-y-0 lg:space-x-8">
+                <a href="index.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Home</a>
+                <a href="nav-angle-converter.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">NavAngle Converter</a>
+                
+                <!-- Automation Dropdown -->
+                <div class="relative group">
+                    <a href="javascript:void(0)" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md active">
+                        Automation <i class="fas fa-chevron-down text-sm ml-1 group-hover:rotate-180 transition-transform duration-300"></i>
+                    </a>
+                    <div class="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 top-full bg-white text-gray-800 rounded-md shadow-lg py-2 w-56 lg:w-48 transform -translate-x-1/2 lg:translate-x-0 left-1/2 lg:left-0 z-10">
+                        <a href="ship-lines-plan-drawing.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base active">Ship Lines Plan Drawing</a>
+                        <a href="ship-hydrostatic-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Hydrostatic Calculation</a>
+                        <a href="ship-trim-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 text-base">Ship Trim Calculation</a>
+                    </div>
+                </div>
+                
+                <a href="contact.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-6 md:p-8">
+
+        <section id="ship-lines-plan-drawing" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 text-center">Ship Lines Plan Drawing Automation</h2>
+            <p class="text-lg text-gray-700 leading-relaxed mb-8 text-center">
+                Input your ship dimensions and offset table below to generate and download a DXF file of the lines plan.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Input Parameters for Ship Lines Plan -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Ship Dimensions & Parameters</h3>
+                    <form id="linesPlanForm">
+                        <div class="input-group">
+                            <label for="LBP">Ship Length (LBP) (m)</label>
+                            <input type="number" id="LBP" placeholder="e.g., 100" class="w-full" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="B">Breadth (B) (m)</label>
+                            <input type="number" id="B" placeholder="e.g., 15" class="w-full" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="D">Depth (D) (m)</label>
+                            <input type="number" id="D" placeholder="e.g., 6" class="w-full" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="numButtocks">Number of Buttock Lines</label>
+                            <input type="number" id="numButtocks" placeholder="e.g., 3" class="w-full" min="1" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="numWaterlines">Total Number of Waterlines</label>
+                            <input type="number" id="numWaterlines" placeholder="e.g., 5" class="w-full" min="2" step="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="numStations">Total Number of Stations</label>
+                            <input type="number" id="numStations" placeholder="e.g., 11" class="w-full" min="2" step="1">
+                        </div>
+                        
+                        <div class="input-group mt-6">
+                            <label for="offsetTableInput">Offset Table (Comma-separated values per waterline, one station per line. Leave empty for missing values):</label>
+                            <textarea id="offsetTableInput" rows="10" placeholder="Example (for 3 waterlines):
+0,0.5,1.2
+0.2,1.5,2.0
+0.5,,2.5
+..."></textarea>
+                            <p class="text-sm text-gray-500 mt-2">
+                                Enter values like: `offset_wl1,offset_wl2,offset_wl3,...` for each station.
+                                Press Enter for a new station. Leave a value empty `,,` for a missing offset.
+                            </p>
+                        </div>
+
+                        <div class="flex justify-center gap-4 mt-8">
+                            <button type="submit" id="generateDxfBtn" class="bg-indigo-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-file-download mr-2"></i> Generate DXF
+                            </button>
+                            <button type="button" id="clearInputsBtn" class="bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-400 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-redo mr-2"></i> Clear Inputs
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Generated Output / Visualization -->
+                <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Generation Status & Output</h3>
+                    <div id="outputStatus" class="bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+                        <strong class="font-bold">Info:</strong>
+                        <span class="block sm:inline" id="statusMessage"></span>
+                    </div>
+                    <div id="errorMessages" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+                        <strong class="font-bold">Error:</strong>
+                        <ul id="errorList" class="list-disc list-inside mt-2"></ul>
+                    </div>
+                    <div class="bg-gray-100 border border-dashed border-gray-300 rounded-md h-96 flex flex-col items-center justify-center text-gray-500 text-center p-4">
+                        <p class="mb-2">
+                            The generated DXF file will be downloaded automatically.
+                        </p>
+                        <p class="mb-2">
+                            You can open DXF files with CAD software like AutoCAD, FreeCAD, or online viewers.
+                        </p>
+                        <p class="mb-2">
+                            AutoCAD finds difficulty in rendering spline generate by this coding. To view the lines plan file use Apowersoft CAD Viewer software or https://sharecad.org/ website which is completely free. If you want to view the lines plan file in AutoCAD do save as the original file using Apowersoft CAD Viewer software giving it a different name. Now the new file can be opened easily in AutoCAD software and splines are rendered.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-6 text-center text-sm shadow-inner mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2025 iamtawhid. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="https://www.linkedin.com/in/iamtawhid/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-blue-400 transition-colors duration-300">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="https://github.com/iam-tawhid" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-400 transition-colors duration-300">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="mailto:iamtawhidhassan@gmail.com" class="text-white hover:text-red-400 transition-colors duration-300">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variable to accumulate DXF content
+        let dxfContentString = "";
+
+        // Helper to append lines to DXF content
+        function appendDxfLine(line) {
+            dxfContentString += line + "\n";
+        }
+
+        // Function implementations translated from C++
+        function writeLine(x1, y1, x2, y2, layer = "0", color = 7) {
+            appendDxfLine("0");
+            appendDxfLine("LINE");
+            appendDxfLine("8");
+            appendDxfLine(layer);
+            appendDxfLine("62");
+            appendDxfLine(color.toString());
+            appendDxfLine("10");
+            appendDxfLine(x1.toFixed(6));
+            appendDxfLine("20");
+            appendDxfLine(y1.toFixed(6));
+            appendDxfLine("11");
+            appendDxfLine(x2.toFixed(6));
+            appendDxfLine("21");
+            appendDxfLine(y2.toFixed(6));
+        }
+
+        function drawRectangle(x, y, width, height, layer = "0") {
+            writeLine(x, y, x + width, y, layer);
+            writeLine(x + width, y, x + width, y + height, layer);
+            writeLine(x + width, y + height, x, y + height, layer);
+            writeLine(x, y + height, x, y, layer);
+        }
+
+        function drawText(x, y, text, layer = "0", height = 0.3, color = 7) {
+            appendDxfLine("0");
+            appendDxfLine("TEXT");
+            appendDxfLine("8");
+            appendDxfLine(layer);
+            appendDxfLine("62");
+            appendDxfLine(color.toString());
+            appendDxfLine("10");
+            appendDxfLine(x.toFixed(6));
+            appendDxfLine("20");
+            appendDxfLine(y.toFixed(6));
+            appendDxfLine("40");
+            appendDxfLine(height.toFixed(6));
+            appendDxfLine("1");
+            appendDxfLine(text);
+        }
+
+        function writeSpline(controlPoints, layer = "0", color = 7) {
+            if (controlPoints.length < 2) return;
+
+            const degree = 3;
+            const numControlPoints = controlPoints.length;
+            const numKnots = numControlPoints + degree + 1; 
+
+            appendDxfLine("0");
+            appendDxfLine("SPLINE");
+            appendDxfLine("8");
+            appendDxfLine(layer);
+            appendDxfLine("62");
+            appendDxfLine(color.toString());
+            appendDxfLine("70");
+            appendDxfLine("0"); // Changed from "8" (periodic) to "0" (non-periodic, non-rational)
+            appendDxfLine("71");
+            appendDxfLine(degree.toString()); // Degree
+            appendDxfLine("72");
+            appendDxfLine(numKnots.toString()); // Number of knots
+            appendDxfLine("73");
+            appendDxfLine(numControlPoints.toString()); // Number of control points
+
+            // Write control points
+            for (const p of controlPoints) {
+                appendDxfLine("10");
+                appendDxfLine(p.x.toFixed(6));
+                appendDxfLine("20");
+                appendDxfLine(p.y.toFixed(6));
+                appendDxfLine("30");
+                appendDxfLine("0.0");
+            }
+
+            // Write knot values (uniform B-spline)
+            for (let i = 0; i < numKnots; ++i) { 
+                appendDxfLine("40");
+                appendDxfLine(i.toFixed(6));
+            }
+
+            // Write weights (uniform, so all 1.0)
+            for (let i = 0; i < numControlPoints; ++i) {
+                appendDxfLine("41");
+                appendDxfLine("1.0");
+            }
+
+            appendDxfLine("0");
+            appendDxfLine("ENDSPLINE");
+        }
+
+        // Function to parse the offset table from textarea
+        function parseOffsetTable(text, numStations, numWaterlines) {
+            const table = Array(numStations).fill(null).map(() => Array(numWaterlines).fill(null));
+            const lines = text.trim().split('\n');
+            const errors = [];
+
+            if (lines.length !== numStations) {
+                errors.push(`Expected ${numStations} station rows, but found ${lines.length}.`);
+            }
+
+            for (let i = 0; i < Math.min(lines.length, numStations); ++i) {
+                const values = lines[i].split(',').map(val => val.trim());
+                if (values.length !== numWaterlines) {
+                    errors.push(`Station ${i + 1}: Expected ${numWaterlines} waterline offsets, but found ${values.length}.`);
+                }
+
+                for (let j = 0; j < Math.min(values.length, numWaterlines); ++j) {
+                    if (values[j] !== "") {
+                        const parsedVal = parseFloat(values[j]);
+                        if (!isNaN(parsedVal)) {
+                            table[i][j] = parsedVal;
+                        } else {
+                            errors.push(`Station ${i + 1}, Waterline ${j + 1}: Invalid number "${values[j]}". Assuming missing.`);
+                            table[i][j] = null; // Explicitly null for missing
+                        }
+                    } else {
+                        table[i][j] = null; // Explicitly null for missing
+                    }
+                }
+            }
+            return { table, errors };
+        }
+
+        // Main function to generate DXF content
+        function generateDxfContent() {
+            dxfContentString = ""; // Reset DXF content
+            const errors = [];
+            
+            const LBP = parseFloat(document.getElementById('LBP').value);
+            const B = parseFloat(document.getElementById('B').value);
+            const D = parseFloat(document.getElementById('D').value);
+            const numButtocks = parseInt(document.getElementById('numButtocks').value);
+            const numWaterlines = parseInt(document.getElementById('numWaterlines').value);
+            const numStations = parseInt(document.getElementById('numStations').value);
+            const offsetTableText = document.getElementById('offsetTableInput').value;
+
+            // Input validation
+            if (isNaN(LBP) || LBP <= 0) errors.push("Ship Length (LBP) must be a positive number.");
+            if (isNaN(B) || B <= 0) errors.push("Breadth (B) must be a positive number.");
+            if (isNaN(D) || D <= 0) errors.push("Depth (D) must be a positive number.");
+            if (isNaN(numButtocks) || numButtocks < 1) errors.push("Number of Buttock Lines must be at least 1.");
+            if (isNaN(numWaterlines) || numWaterlines < 2) errors.push("Total Number of Waterlines must be at least 2.");
+            if (isNaN(numStations) || numStations < 2) errors.push("Total Number of Stations must be at least 2.");
+
+            const { table: offsetTable, errors: offsetErrors } = parseOffsetTable(offsetTableText, numStations, numWaterlines);
+            errors.push(...offsetErrors);
+
+            // Display errors or proceed
+            const errorMessagesDiv = document.getElementById('errorMessages');
+            const errorList = document.getElementById('errorList');
+            const outputStatus = document.getElementById('outputStatus');
+            const statusMessage = document.getElementById('statusMessage');
+
+            errorList.innerHTML = '';
+            if (errors.length > 0) {
+                errorMessagesDiv.classList.remove('hidden');
+                outputStatus.classList.add('hidden');
+                errors.forEach(err => {
+                    const li = document.createElement('li');
+                    li.textContent = err;
+                    errorList.appendChild(li);
+                });
+                return;
+            } else {
+                errorMessagesDiv.classList.add('hidden');
+                statusMessage.textContent = "Generating DXF file...";
+                outputStatus.classList.remove('hidden');
+            }
+
+            // DXF Header
+            appendDxfLine("0");
+            appendDxfLine("SECTION");
+            appendDxfLine("2");
+            appendDxfLine("HEADER");
+            appendDxfLine("9");
+            appendDxfLine("$ACADVER");
+            appendDxfLine("1");
+            appendDxfLine("AC1032");  // AutoCAD 2018 DXF format
+            appendDxfLine("9");
+            appendDxfLine("$LIMSZ");
+            appendDxfLine("70");
+            appendDxfLine("1");
+            appendDxfLine("9");
+            appendDxfLine("$LIMCHECK");
+            appendDxfLine("70");
+            appendDxfLine("0");
+            
+            // Calculate approximate drawing extents for HEADER
+            const minX = 0;
+            const maxX = B + spacing + LBP;
+            const minY = -(B + spacing);
+            const maxY = D;
+
+            appendDxfLine("9");
+            appendDxfLine("$EXTMIN");
+            appendDxfLine("10");
+            appendDxfLine(minX.toFixed(6));
+            appendDxfLine("20");
+            appendDxfLine(minY.toFixed(6));
+            appendDxfLine("9");
+            appendDxfLine("$EXTMAX");
+            appendDxfLine("10");
+            appendDxfLine(maxX.toFixed(6));
+            appendDxfLine("20");
+            appendDxfLine(maxY.toFixed(6));
+            
+            appendDxfLine("9");
+            appendDxfLine("$INSUNITS");
+            appendDxfLine("70");
+            appendDxfLine("6");       // Meters
+            appendDxfLine("9");
+            appendDxfLine("$AUNITS");
+            appendDxfLine("70");
+            appendDxfLine("0");       // Decimal degrees
+            appendDxfLine("9");
+            appendDxfLine("$AUPREC");
+            appendDxfLine("70");
+            appendDxfLine("4");       // 4 decimal places for angles
+            appendDxfLine("9");
+            appendDxfLine("$LUNITS");
+            appendDxfLine("70");
+            appendDxfLine("2");       // Decimal
+            appendDxfLine("9");
+            appendDxfLine("$LUPREC");
+            appendDxfLine("70");
+            appendDxfLine("6");       // 6 decimal places for linear units
+
+            appendDxfLine("0");
+            appendDxfLine("ENDSEC");
+            appendDxfLine("0");
+            appendDxfLine("SECTION");
+            appendDxfLine("2");
+            appendDxfLine("ENTITIES");
+
+            // Define layout constants
+            const spacing = 10;
+            const bodyX = 0, bodyY = 0;
+            const profileX = B + spacing, profileY = 0;
+            const halfBreadthX = B + spacing, halfBreadthY = -(B + spacing); // Adjusted Y for half breadth
+
+            const halfBreadthWidth = LBP;
+
+            // Draw bounding rectangles
+            drawRectangle(bodyX, bodyY, B, D);
+            drawRectangle(profileX, profileY, LBP, D);
+            drawRectangle(halfBreadthX, halfBreadthY, halfBreadthWidth, B / 2);
+
+            // Calculate spacings
+            const wlSpacing = D / (numWaterlines - 1);
+            const buttockSpacing = (0.5 * B) / numButtocks;
+            const stationSpacing = LBP / (numStations - 1);
+
+            // Colors for layers (matching C++ where possible, DXF colors 1-255)
+            const stationColors = [1, 2, 3, 4, 5, 6]; // Red, Yellow, Green, Cyan, Blue, Magenta
+            const waterlineColors = [1, 3, 5, 2, 4, 6]; // Different cycle for waterlines
+            const buttockColors = [13, 14, 15, 16, 17, 18, 19, 20, 21]; // Arbitrary colors for buttock lines
+
+            // Body Plan - Drawing Stations as Splines and Buttock Lines
+            const bodyCenterX = bodyX + B / 2;
+            drawText(bodyX + B / 2 - 1, bodyY + D + 0.8, "Body Plan", "0", 0.3);
+            drawText(bodyX + B + 0.5, bodyY, "Baseline", "0", 0.3);
+            drawText(bodyCenterX - 0.2, bodyY - 0.5, "CL", "0", 0.3);
+            writeLine(bodyCenterX, bodyY, bodyCenterX, bodyY + D, "0");
+
+            for (let i = 0; i < numWaterlines; ++i) {
+                const y = bodyY + wlSpacing * i;
+                writeLine(bodyX, y, bodyX + B, y, "wl" + (i + 1));
+                appendDxfLine("0"); // Start of TEXT entity
+                appendDxfLine("TEXT");
+                appendDxfLine("8");
+                appendDxfLine("wl_labels");
+                appendDxfLine("62");
+                appendDxfLine(waterlineColors[i % waterlineColors.length].toString()); // Apply waterline color
+                appendDxfLine("10");
+                appendDxfLine((bodyX + B + 0.5).toFixed(6));
+                appendDxfLine("20");
+                appendDxfLine(y.toFixed(6));
+                appendDxfLine("40");
+                appendDxfLine("0.3"); // Text height
+                appendDxfLine("1");
+                appendDxfLine("wl" + (i + 1)); // Waterline label
+            }
+
+            const numAftStations = (numStations % 2 === 0) ? numStations / 2 : Math.floor(numStations / 2) + 1;
+            const numForStations = numStations - numAftStations;
+
+            // Draw AFT stations (left side of CL)
+            for (let i = 0; i < numAftStations; ++i) {
+                const controlPoints = [];
+                let maxX = bodyCenterX;
+                for (let j = 0; j < numWaterlines; ++j) {
+                    if (offsetTable[i][j] !== null) {
+                        const x = bodyCenterX - offsetTable[i][j];
+                        controlPoints.push({ x: x, y: bodyY + j * wlSpacing });
+                        maxX = Math.min(maxX, x);
+                    }
+                }
+                if (controlPoints.length >= 2) {
+                    const colorIndex = i % stationColors.length;
+                    writeSpline(controlPoints, "st" + (i + 1), stationColors[colorIndex]);
+                    drawText(maxX - 0.6, bodyY + D + 0.8, "st" + (i + 1), "station_labels", 0.3, stationColors[colorIndex]);
+                } else if (controlPoints.length === 1) {
+                    const colorIndex = i % stationColors.length;
+                    appendDxfLine("0");
+                    appendDxfLine("POINT");
+                    appendDxfLine("8");
+                    appendDxfLine("st" + (i + 1));
+                    appendDxfLine("62");
+                    appendDxfLine(stationColors[colorIndex].toString());
+                    appendDxfLine("10");
+                    appendDxfLine(controlPoints[0].x.toFixed(6));
+                    appendDxfLine("20");
+                    appendDxfLine(controlPoints[0].y.toFixed(6));
+                    appendDxfLine("30");
+                    appendDxfLine("0.0");
+                    drawText(controlPoints[0].x - 0.6, bodyY + D + 0.8, "st" + (i + 1), "station_labels", 0.3, stationColors[colorIndex]);
+                }
+            }
+            
+            // Draw FOR stations (right side of CL)
+            for (let i = 0; i < numForStations; ++i) {
+                const controlPoints = [];
+                const stationIndex = numAftStations + i;
+                let minX = bodyCenterX;
+                for (let j = 0; j < numWaterlines; ++j) {
+                    if (offsetTable[stationIndex][j] !== null) {
+                        const x = bodyCenterX + offsetTable[stationIndex][j];
+                        controlPoints.push({ x: x, y: bodyY + j * wlSpacing });
+                        minX = Math.max(minX, x);
+                    }
+                }
+                if (controlPoints.length >= 2) {
+                    const colorIndex = (numAftStations + i) % stationColors.length;
+                    writeSpline(controlPoints, "st" + (stationIndex + 1), stationColors[colorIndex]);
+                    drawText(minX + 0.2, bodyY + D + 0.8, "st" + (stationIndex + 1), "station_labels", 0.3, stationColors[colorIndex]);
+                } else if (controlPoints.length === 1) {
+                    const colorIndex = (numAftStations + i) % stationColors.length;
+                    appendDxfLine("0");
+                    appendDxfLine("POINT");
+                    appendDxfLine("8");
+                    appendDxfLine("st" + (stationIndex + 1));
+                    appendDxfLine("62");
+                    appendDxfLine(stationColors[colorIndex].toString());
+                    appendDxfLine("10");
+                    appendDxfLine(controlPoints[0].x.toFixed(6));
+                    appendDxfLine("20");
+                    appendDxfLine(controlPoints[0].y.toFixed(6));
+                    appendDxfLine("30");
+                    appendDxfLine("0.0");
+                    drawText(controlPoints[0].x + 0.2, bodyY + D + 0.8, "st" + (stationIndex + 1), "station_labels", 0.3, stationColors[colorIndex]);
+                }
+            }
+
+            // Draw Buttock Lines in Body Plan
+            for (let i = 1; i <= numButtocks; ++i) {
+                const buttockOffset = i * buttockSpacing;
+                writeLine(bodyCenterX + buttockOffset, bodyY, bodyCenterX + buttockOffset, bodyY + D, "b" + i, buttockColors[(i - 1) % buttockColors.length]);
+                writeLine(bodyCenterX - buttockOffset, bodyY, bodyCenterX - buttockOffset, bodyY + D, "b" + i, buttockColors[(i - 1) % buttockColors.length]);
+                drawText(bodyCenterX + buttockOffset + 0.2, bodyY - 0.8, "b" + i, "buttock_labels", 0.3, buttockColors[(i - 1) % buttockColors.length]);
+                drawText(bodyCenterX - buttockOffset - 0.8, bodyY - 0.8, "b" + i, "buttock_labels", 0.3, buttockColors[(i - 1) % buttockColors.length]);
+            }
+
+            // Profile Plan
+            drawText(profileX + LBP / 2 - 2, profileY + D + 0.8, "Profile", "0", 0.3);
+            drawText(profileX + LBP + 0.5, profileY, "Baseline", "0", 0.3);
+            for (let i = 0; i < numWaterlines; ++i) {
+                const y = profileY + wlSpacing * i;
+                writeLine(profileX, y, profileX + LBP, y, "wl" + (i + 1));
+                appendDxfLine("0"); // Start of TEXT entity
+                appendDxfLine("TEXT");
+                appendDxfLine("8");
+                appendDxfLine("wl_labels");
+                appendDxfLine("62");
+                appendDxfLine(waterlineColors[i % waterlineColors.length].toString()); // Apply waterline color
+                appendDxfLine("10");
+                appendDxfLine((profileX + LBP + 0.5).toFixed(6));
+                appendDxfLine("20");
+                appendDxfLine(y.toFixed(6));
+                appendDxfLine("40");
+                appendDxfLine("0.3"); // Text height
+                appendDxfLine("1");
+                appendDxfLine("wl" + (i + 1)); // Waterline label
+            }
+            for (let i = 0; i < numStations; ++i) {
+                const x = profileX + i * stationSpacing;
+                writeLine(x, profileY, x, profileY + D, "st" + (i + 1));
+                drawText(x, profileY - 0.8, "st" + (i + 1), "station_labels", 0.3);
+            }
+
+            // Half Breadth Plan - Waterlines are drawn here
+            drawText(halfBreadthX + LBP / 2 - 3, halfBreadthY + B / 2 + 0.8, "Half Breadth Plan", "0", 0.3);
+            drawText(halfBreadthX - 2, halfBreadthY, "CL", "0", 0.3);
+            for (let i = 0; i < numStations; ++i) {
+                const x = halfBreadthX + i * stationSpacing;
+                writeLine(x, halfBreadthY, x, halfBreadthY + B / 2, "st" + (i + 1));
+                drawText(x, halfBreadthY - 0.8, "st" + (i + 1), "station_labels", 0.3);
+            }
+            for (let i = 0; i < numButtocks; ++i) {
+                const y = halfBreadthY + (i + 1) * buttockSpacing;
+                if (y <= halfBreadthY + B / 2) {
+                    writeLine(halfBreadthX, y, halfBreadthX + LBP, y, "b" + (i + 1), buttockColors[i % buttockColors.length]);
+                    drawText(halfBreadthX - 2, y, "b" + (i + 1), "buttock_labels", 0.3, buttockColors[i % buttockColors.length]);
+                }
+            }
+
+            // Draw Waterlines in Half Breadth Plan
+            for (let j = 0; j < numWaterlines; ++j) {
+                const controlPoints = [];
+                for (let i = 0; i < numStations; ++i) {
+                    const x = halfBreadthX + i * stationSpacing;
+                    if (offsetTable[i][j] !== null) {
+                        controlPoints.push({ x: x, y: halfBreadthY + offsetTable[i][j] });
+                    }
+                }
+                if (controlPoints.length >= 2) {
+                    const colorIndex = j % waterlineColors.length;
+                    writeSpline(controlPoints, "wl" + (j + 1), waterlineColors[colorIndex]);
+                    const labelX = halfBreadthX + halfBreadthWidth + 0.5;
+                    const labelY = controlPoints.length > 0 ? controlPoints[0].y : halfBreadthY;
+                    drawText(labelX, labelY, "wl" + (j + 1), "wl_labels", 0.3, waterlineColors[colorIndex]);
+                }
+            }
+
+            // Draw Buttock Lines in Profile Plan (Robust Intersection Finding)
+            for (let i = 1; i <= numButtocks; ++i) {
+                const buttockOffsetTarget = i * buttockSpacing;
+                const controlPoints = [];
+                const numAftStationsForCalc = (numStations % 2 === 0) ? numStations / 2 : Math.floor(numStations / 2) + 1;
+
+                for (let j = 0; j < numStations; ++j) {
+                    const stationXProfile = profileX + j * stationSpacing;
+                    let buttockYProfile = NaN;
+                    let foundButtockY = false;
+
+                    for (let wl = 0; wl < numWaterlines - 1; ++wl) {
+                        const offset1_opt = offsetTable[j][wl];
+                        const offset2_opt = offsetTable[j][wl + 1];
+                        const wl_height1 = bodyY + wl * wlSpacing;
+                        const wl_height2 = bodyY + (wl + 1) * wlSpacing;
+
+                        if (offset1_opt !== null && offset2_opt !== null) {
+                            const offset1_body_abs = Math.abs(offset1_opt);
+                            const offset2_body_abs = Math.abs(offset2_opt);
+                            const lowerOffset = Math.min(offset1_body_abs, offset2_body_abs);
+                            const upperOffset = Math.max(offset1_body_abs, offset2_body_abs);
+
+                            // Check if buttock line is between these two waterlines' offsets for this station
+                            if (buttockOffsetTarget >= lowerOffset - 1e-6 && buttockOffsetTarget <= upperOffset + 1e-6) {
+                                // Linear interpolation for Y-coordinate
+                                let weight;
+                                if (upperOffset - lowerOffset < 1e-9) { 
+                                    weight = 0; 
+                                } else {
+                                    weight = (buttockOffsetTarget - lowerOffset) / (upperOffset - lowerOffset);
+                                }
+                                
+                                if (offset1_body_abs > offset2_body_abs) {
+                                    buttockYProfile = wl_height2 + (1 - weight) * wlSpacing - profileY;
+                                } else {
+                                    buttockYProfile = wl_height1 + weight * wlSpacing - profileY;
+                                }
+                                foundButtockY = true;
+                                break;
+                            }
+                        } 
+                        if (offset1_opt !== null && Math.abs(Math.abs(offset1_opt) - buttockOffsetTarget) < 1e-6) {
+                            buttockYProfile = wl_height1 - profileY;
+                            foundButtockY = true;
+                            break;
+                        } else if (offset2_opt !== null && Math.abs(Math.abs(offset2_opt) - buttockOffsetTarget) < 1e-6) {
+                            buttockYProfile = wl_height2 - profileY;
+                            foundButtockY = true;
+                            break;
+                        }
+                    }
+
+                    if (foundButtockY) {
+                        controlPoints.push({ x: stationXProfile, y: buttockYProfile });
+                    } else if (j === numAftStationsForCalc - 1 && numStations > 1) { 
+                        controlPoints.push({ x: stationXProfile, y: bodyY - profileY });
+                    }
+                }
+                if (controlPoints.length >= 2) { 
+                    const buttockColorIndex = (i - 1) % buttockColors.length;
+                    writeSpline(controlPoints, "b" + i, buttockColors[buttockColorIndex]);
+                    if (controlPoints.length > 0) {
+                        drawText(profileX - 2, controlPoints[0].y + profileY, "b" + i, "buttock_labels", 0.3, buttockColors[buttockColorIndex]);
+                    }
+                } else if (controlPoints.length === 1) { 
+                    const buttockColorIndex = (i - 1) % buttockColors.length;
+                    appendDxfLine("0");
+                    appendDxfLine("POINT");
+                    appendDxfLine("8");
+                    appendDxfLine("b" + i);
+                    appendDxfLine("62");
+                    appendDxfLine(buttockColors[buttockColorIndex].toString());
+                    appendDxfLine("10");
+                    appendDxfLine(controlPoints[0].x.toFixed(6));
+                    appendDxfLine("20");
+                    appendDxfLine(controlPoints[0].y.toFixed(6));
+                    appendDxfLine("30");
+                    appendDxfLine("0.0");
+                    drawText(profileX - 2, controlPoints[0].y + profileY, "b" + i, "buttock_labels", 0.3, buttockColors[buttockColorIndex]);
+                }
+            }
+
+            appendDxfLine("0");
+            appendDxfLine("ENDSEC");
+            appendDxfLine("0");
+            appendDxfLine("EOF");
+
+            // Trigger download
+            downloadDxfFile(dxfContentString, "lines_plan.dxf");
+            statusMessage.textContent = "DXF file 'lines_plan.dxf' generated and downloaded!";
+            outputStatus.classList.remove('hidden');
+            outputStatus.classList.add('bg-green-100', 'border-green-200', 'text-green-700');
+            outputStatus.classList.remove('bg-blue-100', 'border-blue-200', 'text-blue-700');
+
+        }
+
+        // Function to trigger file download
+        function downloadDxfFile(content, filename) {
+            const blob = new Blob([content], { type: 'application/dxf' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to clear all input fields
+        function clearInputs() {
+            document.getElementById('linesPlanForm').reset();
+            document.getElementById('outputStatus').classList.add('hidden');
+            document.getElementById('errorMessages').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('linesPlanForm');
+            const generateBtn = document.getElementById('generateDxfBtn');
+            const clearBtn = document.getElementById('clearInputsBtn');
+            const menuButton = document.getElementById('menu-button');
+            const navLinks = document.getElementById('nav-links');
+
+            // Handle form submission for DXF generation
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent default form submission
+                generateDxfContent();
+            });
+
+            // Handle clear button click
+            clearBtn.addEventListener('click', clearInputs);
+
+            // Mobile menu toggle
+            menuButton.addEventListener('click', () => {
+                navLinks.classList.toggle('hidden');
+                navLinks.classList.toggle('flex');
+            });
+        });
+    </script>
+</body>
+</html>

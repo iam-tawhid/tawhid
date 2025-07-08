@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects Portfolio - Ship Trim Calculation</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <style>
+        /* Specific styles for this page */
+        .nav-link.active {
+            font-weight: bold;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            color: #d1d5db; /* gray-300 */
+        }
+        @media (max-width: 1023px) {
+            #nav-links.flex {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            font-weight: 500;
+            color: #4b5563; /* gray-700 */
+            margin-bottom: 0.5rem;
+        }
+        .input-group input[type="number"],
+        .input-group select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: white; /* Ensure consistent background */
+        }
+        .input-group input[type="number"]:focus,
+        .input-group select:focus {
+            border-color: #6366f1; /* indigo-500 */
+        }
+        .input-with-direction {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .input-with-direction input {
+            flex-grow: 1;
+        }
+        .result-display-group {
+            background-color: #f9fafb; /* gray-50 */
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 1rem;
+        }
+        .result-display-group label {
+            font-weight: 600;
+            color: #1f2937; /* gray-900 */
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .result-display-group span {
+            display: block;
+            font-size: 1.125rem; /* text-lg */
+            color: #4b5563; /* gray-700 */
+            word-wrap: break-word; /* Ensure long text wraps */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <!-- Brand/Logo -->
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wider">iamtawhid</a>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="text-white lg:hidden focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div id="nav-links" class="hidden lg:flex flex-col lg:flex-row lg:items-center w-full lg:w-auto mt-4 lg:mt-0 space-y-3 lg:space-y-0 lg:space-x-8">
+                <a href="index.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Home</a>
+                <a href="nav-angle-converter.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">NavAngle Converter</a>
+                
+                <!-- Automation Dropdown -->
+                <div class="relative group">
+                    <a href="javascript:void(0)" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md active">
+                        Automation <i class="fas fa-chevron-down text-sm ml-1 group-hover:rotate-180 transition-transform duration-300"></i>
+                    </a>
+                    <div class="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 top-full bg-white text-gray-800 rounded-md shadow-lg py-2 w-56 lg:w-48 transform -translate-x-1/2 lg:translate-x-0 left-1/2 lg:left-0 z-10">
+                        <a href="ship-lines-plan-drawing.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Lines Plan Drawing</a>
+                        <a href="ship-hydrostatic-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Hydrostatic Calculation</a>
+                        <a href="ship-trim-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 text-base active">Ship Trim Calculation</a>
+                    </div>
+                </div>
+                
+                <a href="contact.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-6 md:p-8">
+
+        <section id="ship-trim-calculation" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6 text-center">Ship Trim Calculation</h2>
+            <p class="text-lg text-gray-700 leading-relaxed mb-8 text-center">
+                Calculate various trim parameters for your ship based on key hydrostatic and dimensional data.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Input Parameters Section -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Input Parameters</h3>
+                    <form id="trimCalculationForm">
+                        <div class="input-group">
+                            <label for="LBP">Length Between Perpendiculars (LBP) (m)</label>
+                            <input type="number" id="LBP" placeholder="e.g., 100" class="w-full" step="any" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="LCG">Longitudinal Center of Gravity (LCG) (m) from Amidship</label>
+                            <div class="input-with-direction">
+                                <input type="number" id="LCG" placeholder="e.g., 2.5" step="any" required>
+                                <select id="LCGDir">
+                                    <option value="FOR">FOR</option>
+                                    <option value="AFT">AFT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="LCB">Longitudinal Center of Buoyancy (LCB) (m) from Amidship</label>
+                            <div class="input-with-direction">
+                                <input type="number" id="LCB" placeholder="e.g., 1.8" step="any" required>
+                                <select id="LCBDir">
+                                    <option value="FOR">FOR</option>
+                                    <option value="AFT">AFT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="LCF">Longitudinal Center of Flotation (LCF) (m) from Amidship</label>
+                            <div class="input-with-direction">
+                                <input type="number" id="LCF" placeholder="e.g., 0.5" step="any" required>
+                                <select id="LCFDir">
+                                    <option value="FOR">FOR</option>
+                                    <option value="AFT">AFT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="MCTC">Moment to Change Trim 1 cm (MCTC) (t-m/cm)</label>
+                            <input type="number" id="MCTC" placeholder="e.g., 150" class="w-full" step="any" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="Displacement">Ship Displacement (tonnes)</label>
+                            <input type="number" id="Displacement" placeholder="e.g., 5000" class="w-full" step="any" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="ShipDraft">Ship Draft (m)</label>
+                            <input type="number" id="ShipDraft" placeholder="e.g., 5.0" class="w-full" step="any" required>
+                        </div>
+
+                        <div class="flex justify-center gap-4 mt-8">
+                            <button type="submit" id="calculateTrimBtn" class="bg-indigo-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-calculator mr-2"></i> Calculate Trim
+                            </button>
+                            <button type="button" id="clearInputsBtn" class="bg-gray-300 text-gray-800 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-400 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-redo mr-2"></i> Clear Inputs
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Results Section -->
+                <div class="flex flex-col gap-8">
+                    <!-- Status/Error Messages -->
+                    <div id="statusMessages" class="bg-blue-100 border border-blue-200 text-blue-700 px-4 py-3 rounded relative hidden" role="alert">
+                        <strong class="font-bold">Info:</strong>
+                        <span class="block sm:inline" id="statusText"></span>
+                    </div>
+                    <div id="errorMessages" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative hidden" role="alert">
+                        <strong class="font-bold">Error:</strong>
+                        <ul id="errorList" class="list-disc list-inside mt-2"></ul>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-3">Calculation Results</h3>
+                        
+                        <div class="result-display-group">
+                            <label>Distance of LCF from Aft (WF):</label>
+                            <span id="WFResult">-- m</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Distance of LCF from Forward (FL):</label>
+                            <span id="FLResult">-- m</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Change in Trim:</label>
+                            <span id="changeInTrimResult">-- cm</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Change in Draught at Aft (WW'):</label>
+                            <span id="WWPrimeResult">-- m</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Change in Draught at Forward (LL'):</label>
+                            <span id="LLPrimeResult">-- m</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Final Draft AFT:</label>
+                            <span id="finalDraftAFTResult">-- m</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Final Draft FOR:</label>
+                            <span id="finalDraftFORResult">-- m</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Ship Trim:</label>
+                            <span id="shipTrimResult">-- m</span>
+                        </div>
+                        <div class="result-display-group">
+                            <label>Trim Direction:</label>
+                            <span id="trimDirectionResult" class="font-bold text-indigo-700">--</span>
+                        </div>
+
+                        <div class="flex justify-center gap-4 mt-8">
+                            <button type="button" id="downloadCsvBtn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-file-csv mr-2"></i> Download CSV
+                            </button>
+                            <button type="button" id="downloadPdfBtn" class="bg-red-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-red-700 transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-file-pdf mr-2"></i> Download PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-6 text-center text-sm shadow-inner mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2025 iamtawhid. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="https://www.linkedin.com/in/iamtawhid/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-blue-400 transition-colors duration-300">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="https://github.com/iam-tawhid" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-400 transition-colors duration-300">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="mailto:iamtawhidhassan@gmail.com" class="text-white hover:text-red-400 transition-colors duration-300">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Ensure jsPDF is loaded before use
+        const { jsPDF } = window.jspdf;
+
+        // Function to get all input parameters
+        function getCalculationInputs() {
+            return [
+                { label: 'Length Between Perpendiculars (LBP)', value: document.getElementById('LBP').value + ' m' },
+                { label: 'Longitudinal Center of Gravity (LCG)', value: document.getElementById('LCG').value + ' m ' + document.getElementById('LCGDir').value },
+                { label: 'Longitudinal Center of Buoyancy (LCB)', value: document.getElementById('LCB').value + ' m ' + document.getElementById('LCBDir').value },
+                { label: 'Longitudinal Center of Flotation (LCF)', value: document.getElementById('LCF').value + ' m ' + document.getElementById('LCFDir').value },
+                { label: 'Moment to Change Trim 1 cm (MCTC)', value: document.getElementById('MCTC').value + ' t-m/cm' },
+                { label: 'Ship Displacement', value: document.getElementById('Displacement').value + ' tonnes' },
+                { label: 'Ship Draft', value: document.getElementById('ShipDraft').value + ' m' }
+            ];
+        }
+
+        // Function to get all calculation results
+        function getCalculationResults() {
+            const results = [];
+            document.querySelectorAll('.result-display-group').forEach(group => {
+                const label = group.querySelector('label').textContent.replace(':', '').trim();
+                const value = group.querySelector('span').textContent.trim();
+                results.push({ label, value });
+            });
+            return results;
+        }
+
+        function downloadResultsAsCSV() {
+            const inputs = getCalculationInputs();
+            const results = getCalculationResults();
+
+            if (results.length === 0 || results[0].value.startsWith('--')) {
+                alert('Please perform a calculation first before downloading.');
+                return;
+            }
+
+            let csvContent = "Parameter,Value\n";
+
+            csvContent += "--- Input Parameters ---\n";
+            inputs.forEach(row => {
+                csvContent += `"${row.label}","${row.value}"\n`;
+            });
+
+            csvContent += "\n--- Calculation Results ---\n";
+            results.forEach(row => {
+                csvContent += `"${row.label}","${row.value}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'ship_trim_calculation_results.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        function downloadResultsAsPDF() {
+            const inputs = getCalculationInputs();
+            const results = getCalculationResults();
+
+            if (results.length === 0 || results[0].value.startsWith('--')) {
+                alert('Please perform a calculation first before downloading.');
+                return;
+            }
+
+            const doc = new jsPDF();
+            let yOffset = 10;
+            const lineHeight = 8; // Reduced line height for better spacing
+
+            doc.setFontSize(18);
+            doc.text("Ship Trim Calculation Report", 10, yOffset);
+            yOffset += lineHeight * 2;
+
+            // Input Parameters Section
+            doc.setFontSize(14);
+            doc.text("Input Parameters:", 10, yOffset);
+            yOffset += lineHeight;
+            doc.setFontSize(12);
+            inputs.forEach(row => {
+                doc.text(`${row.label}: ${row.value}`, 15, yOffset);
+                yOffset += lineHeight;
+            });
+
+            yOffset += lineHeight; // Add some space before results
+
+            // Calculation Results Section
+            doc.setFontSize(14);
+            doc.text("Calculation Results:", 10, yOffset);
+            yOffset += lineHeight;
+            doc.setFontSize(12);
+            results.forEach(row => {
+                doc.text(`${row.label}: ${row.value}`, 15, yOffset);
+                yOffset += lineHeight;
+            });
+
+            doc.save('ship_trim_calculation_results.pdf');
+        }
+
+
+        function calculateTrim() {
+            // Clear previous results and messages
+            document.getElementById('statusMessages').classList.add('hidden');
+            document.getElementById('errorMessages').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+            document.getElementById('statusText').textContent = '';
+
+            const errors = [];
+
+            // 1. Get Input Values (read as positive magnitudes)
+            const LBP = parseFloat(document.getElementById('LBP').value);
+            const LCG_input_abs = parseFloat(document.getElementById('LCG').value); 
+            const LCGDir = document.getElementById('LCGDir').value;
+            const LCB_input_abs = parseFloat(document.getElementById('LCB').value); 
+            const LCBDir = document.getElementById('LCBDir').value;
+            const LCF_input_abs = parseFloat(document.getElementById('LCF').value); 
+            const LCFDir = document.getElementById('LCFDir').value;
+            const MCTC = parseFloat(document.getElementById('MCTC').value);
+            const Displacement = parseFloat(document.getElementById('Displacement').value);
+            const ShipDraft = parseFloat(document.getElementById('ShipDraft').value);
+
+            // Input Validation
+            if (isNaN(LBP) || LBP <= 0) errors.push("Length Between Perpendiculars (LBP) must be a positive number.");
+            if (isNaN(LCG_input_abs) || LCG_input_abs < 0) errors.push("Longitudinal Center of Gravity (LCG) must be a non-negative number.");
+            if (isNaN(LCB_input_abs) || LCB_input_abs < 0) errors.push("Longitudinal Center of Buoyancy (LCB) must be a non-negative number.");
+            if (isNaN(LCF_input_abs) || LCF_input_abs < 0) errors.push("Longitudinal Center of Flotation (LCF) must be a non-negative number.");
+            if (isNaN(MCTC) || MCTC <= 0) errors.push("MCTC must be a positive number.");
+            if (isNaN(Displacement) || Displacement <= 0) errors.push("Ship Displacement must be a positive number.");
+            if (isNaN(ShipDraft) || ShipDraft <= 0) errors.push("Ship Draft must be a positive number.");
+
+            if (errors.length > 0) {
+                document.getElementById('errorMessages').classList.remove('hidden');
+                errors.forEach(err => {
+                    const li = document.createElement('li');
+                    li.textContent = err;
+                    document.getElementById('errorList').appendChild(li);
+                });
+                return;
+            }
+
+            // 2. Perform Calculations
+
+            // Calculate the effective longitudinal moment arm (LCG - LCB) with correct sign
+            // This term determines the direction of trim.
+            // Based on user's desired Change in Trim sign:
+            // Positive Change in Trim means Trim by AFT (stern down) -> LCG is AFT of LCB
+            // Negative Change in Trim means Trim by FORWARD (bow down) -> LCG is FORWARD of LCB
+            let longitudinalMomentArm; 
+
+            if (LCGDir === 'FOR' && LCBDir === 'FOR') {
+                if (LCG_input_abs > LCB_input_abs) {
+                    // LCG is further FORWARD than LCB -> Bow down -> Trim by FORWARD
+                    longitudinalMomentArm = -(LCG_input_abs - LCB_input_abs);
+                } else {
+                    // LCB is further FORWARD than LCG -> Stern down -> Trim by AFT
+                    longitudinalMomentArm = (LCB_input_abs - LCG_input_abs);
+                }
+            } else if (LCGDir === 'AFT' && LCBDir === 'AFT') {
+                if (LCG_input_abs > LCB_input_abs) {
+                    // LCG is further AFT than LCB -> Stern down -> Trim by AFT
+                    longitudinalMomentArm = (LCG_input_abs - LCB_input_abs);
+                } else {
+                    // LCB is further AFT than LCG -> Bow down -> Trim by FORWARD
+                    longitudinalMomentArm = -(LCB_input_abs - LCG_input_abs);
+                }
+            } else if (LCGDir === 'FOR' && LCBDir === 'AFT') {
+                // LCG is FOR, LCB is AFT -> LCG is always FORWARD of LCB -> Bow down -> Trim by FORWARD
+                longitudinalMomentArm = -(LCG_input_abs + LCB_input_abs);
+            } else if (LCGDir === 'AFT' && LCBDir === 'FOR') {
+                // LCG is AFT, LCB is FOR -> LCG is always AFT of LCB -> Stern down -> Trim by AFT
+                longitudinalMomentArm = (LCG_input_abs + LCB_input_abs);
+            }
+
+            // Change in Trim = (longitudinalMomentArm * Displacement) / MCTC (Result in cm)
+            const ChangeInTrim = (longitudinalMomentArm * Displacement) / MCTC; 
+
+            // Convert ChangeInTrim from cm to meters for draught calculations
+            const ChangeInTrim_meters = ChangeInTrim / 100;
+
+            // Distance of LCF from aft, WF (always positive magnitude as per user's request)
+            // If LCF is AFT (negative from amidship), it's (LBP/2) - LCF_abs
+            // If LCF is FOR (positive from amidship), it's (LBP/2) + LCF_abs
+            let WF;
+            if (LCFDir === 'AFT') {
+                WF = (LBP / 2) - LCF_input_abs;
+            } else { // LCFDir === 'FOR'
+                WF = (LBP / 2) + LCF_input_abs;
+            }
+
+            // Distance of LCF from forward, FL (always positive magnitude as per user's request)
+            // If LCF is AFT (negative from amidship), it's (LBP/2) + LCF_abs
+            // If LCF is FOR (positive from amidship), it's (LBP/2) - LCF_abs
+            let FL;
+            if (LCFDir === 'AFT') {
+                FL = (LBP / 2) + LCF_input_abs;
+            } else { // LCFDir === 'FOR'
+                FL = (LBP / 2) - LCF_input_abs;
+            }
+
+            // Change in Draught at aft, WW' (in meters)
+            // WW' is calculated with the sign of ChangeInTrim_meters to reflect rise/fall.
+            const WWPrime_m = (WF / LBP) * ChangeInTrim_meters;
+
+            // Change in Draught at FOR, LL' (in meters)
+            // LL' is calculated with the sign of ChangeInTrim_meters to reflect rise/fall.
+            const LLPrime_m = (FL / LBP) * ChangeInTrim_meters;
+
+            // Final Draft, AFT and FOR as per user's specific instruction
+            // Final Draft, AFT = Ship draft - Change in Draught at aft, WW'
+            // Final Draft, FOR= Ship draft + Change in Draught at FOR, LL'
+            const FinalDraftAFT = ShipDraft - WWPrime_m;
+            const FinalDraftFOR = ShipDraft + LLPrime_m;
+
+            // Ship Trim = Final Draft, AFT - Final draft, FOR
+            const ShipTrim = FinalDraftAFT - FinalDraftFOR;
+
+            let TrimDirection = '';
+            // Interpret ShipTrim based on user's specific rules:
+            // if ship trim value is negative it will show "Ship will Trim by AFT".
+            // if trim value is positive it will show "Ship will Trim by FORWARD"
+            if (ShipTrim < 0) {
+                TrimDirection = "Ship will Trim by AFT"; 
+            } else if (ShipTrim > 0) {
+                TrimDirection = "Ship will Trim by FORWARD"; 
+            } else {
+                TrimDirection = "Ship is on Even Keel (No Trim)";
+            }
+
+            // 3. Display Results
+            document.getElementById('WFResult').textContent = `${WF.toFixed(5)} m`;
+            document.getElementById('FLResult').textContent = `${FL.toFixed(5)} m`;
+            document.getElementById('changeInTrimResult').textContent = `${ChangeInTrim.toFixed(5)} cm`;
+            document.getElementById('WWPrimeResult').textContent = `${WWPrime_m.toFixed(5)} m`;
+            document.getElementById('LLPrimeResult').textContent = `${LLPrime_m.toFixed(5)} m`;
+            document.getElementById('finalDraftAFTResult').textContent = `${FinalDraftAFT.toFixed(5)} m`;
+            document.getElementById('finalDraftFORResult').textContent = `${FinalDraftFOR.toFixed(5)} m`;
+            document.getElementById('shipTrimResult').textContent = `${ShipTrim.toFixed(5)} m`;
+            document.getElementById('trimDirectionResult').textContent = TrimDirection;
+
+            document.getElementById('statusMessages').classList.remove('hidden');
+            document.getElementById('statusText').textContent = "Trim calculations complete!";
+            document.getElementById('statusMessages').classList.remove('bg-blue-100', 'border-blue-200', 'text-blue-700');
+            document.getElementById('statusMessages').classList.add('bg-green-100', 'border-green-200', 'text-green-700');
+        }
+
+        // Function to clear all input and result fields
+        function clearInputs() {
+            document.getElementById('trimCalculationForm').reset();
+            document.getElementById('WFResult').textContent = '-- m';
+            document.getElementById('FLResult').textContent = '-- m';
+            document.getElementById('changeInTrimResult').textContent = '-- cm';
+            document.getElementById('WWPrimeResult').textContent = '-- m';
+            document.getElementById('LLPrimeResult').textContent = '-- m';
+            document.getElementById('finalDraftAFTResult').textContent = '-- m';
+            document.getElementById('finalDraftFORResult').textContent = '-- m';
+            document.getElementById('shipTrimResult').textContent = '-- m';
+            document.getElementById('trimDirectionResult').textContent = '--';
+
+            document.getElementById('statusMessages').classList.add('hidden');
+            document.getElementById('errorMessages').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+            document.getElementById('statusMessages').classList.remove('bg-green-100', 'border-green-200', 'text-green-700');
+            document.getElementById('statusMessages').classList.add('bg-blue-100', 'border-blue-200', 'text-blue-700');
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('trimCalculationForm');
+            const calculateBtn = document.getElementById('calculateTrimBtn');
+            const clearBtn = document.getElementById('clearInputsBtn');
+            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            const menuButton = document.getElementById('menu-button');
+            const navLinks = document.getElementById('nav-links');
+
+            // Handle form submission for trim calculation
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent default form submission
+                calculateTrim();
+            });
+
+            // Handle clear button click
+            clearBtn.addEventListener('click', clearInputs);
+
+            // Handle download CSV button click
+            downloadCsvBtn.addEventListener('click', downloadResultsAsCSV);
+
+            // Handle download PDF button click
+            downloadPdfBtn.addEventListener('click', downloadResultsAsPDF);
+
+            // Mobile menu toggle
+            menuButton.addEventListener('click', () => {
+                navLinks.classList.toggle('hidden');
+                navLinks.classList.toggle('flex');
+            });
+        });
+    </script>
+</body>
+</html>

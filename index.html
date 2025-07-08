@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects Portfolio - Home</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <style>
+        /* Active link styling for navigation */
+        .nav-link.active {
+            font-weight: bold;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            color: #d1d5db; /* gray-300 */
+        }
+        /* Mobile menu specific styles */
+        @media (max-width: 1023px) {
+            #nav-links.flex {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        /* Styles for the project shortcut cards, inspired by previous design */
+        .shortcut-card {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease-in-out;
+            transform: translateY(0);
+            cursor: pointer; /* Indicate it's clickable */
+        }
+        .shortcut-card:hover {
+            transform: translateY(-0.25rem) scale(1.02); /* Slight lift and scale on hover */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <!-- Brand/Logo -->
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wider">iamtawhid</a>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="text-white lg:hidden focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div id="nav-links" class="hidden lg:flex flex-col lg:flex-row lg:items-center w-full lg:w-auto mt-4 lg:mt-0 space-y-3 lg:space-y-0 lg:space-x-8">
+                <a href="index.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md active">Home</a>
+                <a href="nav-angle-converter.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">NavAngle Converter</a>
+                
+                <!-- Automation Dropdown -->
+                <div class="relative group">
+                    <a href="javascript:void(0)" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">
+                        Automation <i class="fas fa-chevron-down text-sm ml-1 group-hover:rotate-180 transition-transform duration-300"></i>
+                    </a>
+                    <!-- Updated dropdown classes for smoother transition and hover persistence -->
+                    <div class="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 top-full bg-white text-gray-800 rounded-md shadow-lg py-2 w-56 lg:w-48 transform -translate-x-1/2 lg:translate-x-0 left-1/2 lg:left-0 z-10">
+                        <a href="ship-lines-plan-drawing.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Lines Plan Drawing</a>
+                        <a href="ship-hydrostatic-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Hydrostatic Calculation</a>
+                        <a href="ship-trim-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 text-base">Ship Trim Calculation</a>
+                    </div>
+                </div>
+                
+                <a href="contact.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto p-6 md:p-8">
+
+        <!-- Home Page Content - Reverted to previous design structure -->
+        <section id="home" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8 transform hover:scale-[1.005] transition-transform duration-300 ease-in-out">
+            <h1 class="text-5xl font-extrabold text-gray-800 mb-6 text-center lg:text-left">Welcome to My Project Portfolio!</h1>
+            <p class="text-lg text-gray-600 leading-relaxed mb-10">
+                Hello and welcome! This is where I showcase a collection of my personal and professional projects, highlighting my skills in various domains including navigation, automation, and more. Feel free to explore the different sections to see what I've been working on.
+            </p>
+
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-10 text-center">Featured Projects</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Project Card 1: NavAngle Converter -->
+                <a href="nav-angle-converter.html" class="shortcut-card bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                    <h2 class="text-2xl font-bold mb-3 flex items-center"><i class="fas fa-compass mr-3"></i>NavAngle Converter</h2>
+                    <p class="text-purple-100 mb-4">A tool for precise navigation angle conversions.</p>
+                    <span class="inline-block bg-white text-indigo-700 font-semibold py-2 px-5 rounded-full shadow-md hover:bg-gray-200 transition duration-300">Go to Page <i class="fas fa-arrow-right ml-2"></i></span>
+                </a>
+
+                <!-- Project Card 2: Ship Lines Plan Drawing -->
+                <a href="ship-lines-plan-drawing.html" class="shortcut-card bg-gradient-to-br from-blue-500 to-cyan-600 text-white">
+                    <h2 class="text-2xl font-bold mb-3 flex items-center"><i class="fas fa-ship mr-3"></i>Ship Lines Plan Drawing</h2>
+                    <p class="text-blue-100 mb-4">Details on automated ship line plan generation.</p>
+                    <span class="inline-block bg-white text-cyan-700 font-semibold py-2 px-5 rounded-full shadow-md hover:bg-gray-200 transition duration-300">Go to Page <i class="fas fa-arrow-right ml-2"></i></span>
+                </a>
+
+                <!-- Project Card 3: Ship Hydrostatic Calculation -->
+                <a href="ship-hydrostatic-calculation.html" class="shortcut-card bg-gradient-to-br from-red-500 to-rose-600 text-white">
+                    <h2 class="text-2xl font-bold mb-3 flex items-center"><i class="fas fa-calculator mr-3"></i>Ship Hydrostatic Calculation</h2>
+                    <p class="text-red-100 mb-4">Insights into automated hydrostatic calculations.</p>
+                    <span class="inline-block bg-white text-rose-700 font-semibold py-2 px-5 rounded-full shadow-md hover:bg-gray-200 transition duration-300">Go to Page <i class="fas fa-arrow-right ml-2"></i></span>
+                </a>
+                 <!-- New Project Card 4: Ship Trim Calculation -->
+                <a href="ship-trim-calculation.html" class="shortcut-card bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+                    <h2 class="text-2xl font-bold mb-3 flex items-center"><i class="fas fa-balance-scale-right mr-3"></i>Ship Trim Calculation</h2>
+                    <p class="text-green-100 mb-4">Calculate ship trim and draft changes.</p>
+                    <span class="inline-block bg-white text-emerald-700 font-semibold py-2 px-5 rounded-full shadow-md hover:bg-gray-200 transition duration-300">Go to Page <i class="fas fa-arrow-right ml-2"></i></span>
+                </a>
+            </div>
+        </section>
+
+        <!-- New Section: My Online Presence -->
+        <section id="online-presence" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8 transform hover:scale-[1.005] transition-transform duration-300 ease-in-out">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-10 text-center">My Online Presence</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- My Portfolio Website Card -->
+                <a href="https://tawhid.w3spaces.com/" target="_blank" rel="noopener noreferrer" class="shortcut-card bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                    <h2 class="text-2xl font-bold mb-3 flex items-center"><i class="fas fa-globe mr-3"></i>My Portfolio Website</h2>
+                    <p class="text-teal-100 mb-4">Explore my complete portfolio showcasing a wider range of my work.</p>
+                    <span class="inline-block bg-white text-emerald-700 font-semibold py-2 px-5 rounded-full shadow-md hover:bg-gray-200 transition duration-300">Visit Site <i class="fas fa-external-link-alt ml-2"></i></span>
+                </a>
+
+                <!-- My Blogging Website Card -->
+                <a href="https://tawhid07.blogspot.com/" target="_blank" rel="noopener noreferrer" class="shortcut-card bg-gradient-to-br from-orange-500 to-amber-600 text-white">
+                    <h2 class="text-2xl font-bold mb-3 flex items-center"><i class="fas fa-blog mr-3"></i>My Blogging Website</h2>
+                    <p class="text-orange-100 mb-4">Read my thoughts and articles on various technical topics and interests.</p>
+                    <span class="inline-block bg-white text-amber-700 font-semibold py-2 px-5 rounded-full shadow-md hover:bg-gray-200 transition duration-300">Visit Blog <i class="fas fa-external-link-alt ml-2"></i></span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Call to Action / Contact Section -->
+    <section class="bg-indigo-700 text-white py-12 px-6 text-center shadow-inner mt-12">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Have a Project Idea or Need Assistance?</h2>
+            <p class="text-lg md:text-xl mb-8 opacity-90">
+                Feel free to reach out and let's discuss how my skills can help bring your ideas to life.
+            </p>
+            <a href="contact.html" class="inline-block bg-white text-indigo-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-200 transition duration-300 transform hover:scale-105 text-lg">
+                Contact Me <i class="fas fa-envelope ml-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-6 text-center text-sm shadow-inner mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2025 iamtawhid. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="https://www.linkedin.com/in/iamtawhid/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-blue-400 transition-colors duration-300">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="https://github.com/iam-tawhid" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-400 transition-colors duration-300">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="mailto:iamtawhidhassan@gmail.com" class="text-white hover:text-red-400 transition-colors duration-300">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menu-button');
+            const navLinks = document.getElementById('nav-links');
+
+            menuButton.addEventListener('click', () => {
+                navLinks.classList.toggle('hidden');
+                navLinks.classList.toggle('flex');
+            });
+        });
+    </script>
+</body>
+</html>
