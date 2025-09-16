@@ -171,19 +171,19 @@
                     <form id="hydrostaticForm">
                         <div class="input-group">
                             <label for="LBP">Length Between Perpendiculars (LBP) (m)</label>
-                            <input type="number" id="LBP" placeholder="e.g., 100" class="w-full" step="0.01" required>
+                            <input type="number" id="LBP" placeholder="e.g., 117" class="w-full" step="0.01" required>
                         </div>
                         <div class="input-group">
                             <label for="B">Breadth (B) (m)</label>
-                            <input type="number" id="B" placeholder="e.g., 15" class="w-full" step="0.01" required>
+                            <input type="number" id="B" placeholder="e.g., 15.6" class="w-full" step="0.01" required>
                         </div>
                         <div class="input-group">
                             <label for="D">Depth (D) (m)</label>
-                            <input type="number" id="D" placeholder="e.g., 8" class="w-full" step="0.01" required>
+                            <input type="number" id="D" placeholder="e.g., 9.36" class="w-full" step="0.01" required>
                         </div>
                         <div class="input-group">
                             <label for="maxDraft">Maximum Calculation Draft (m)</label>
-                            <input type="number" id="maxDraft" placeholder="e.g., 6" class="w-full" step="0.01" required>
+                            <input type="number" id="maxDraft" placeholder="e.g., 6.24" class="w-full" step="0.01" required>
                         </div>
                         <div class="input-group">
                             <label for="waterDensity">Water Density (tonnes/m³)</label>
@@ -191,11 +191,11 @@
                         </div>
                         <div class="input-group">
                             <label for="stationSpacing">Station Spacing (m)</label>
-                            <input type="number" id="stationSpacing" placeholder="e.g., 5" class="w-full" step="0.01" required>
+                            <input type="number" id="stationSpacing" placeholder="e.g., 5.85" class="w-full" step="0.01" required>
                         </div>
                         <div class="input-group">
                             <label for="waterlineSpacing">Waterline Spacing (m)</label>
-                            <input type="number" id="waterlineSpacing" placeholder="e.g., 0.5" class="w-full" step="0.01" required>
+                            <input type="number" id="waterlineSpacing" placeholder="e.g., 1.56" class="w-full" step="0.01" required>
                         </div>
                         <div class="input-group">
                             <label for="offsetTableInput">Offset Table (Half-breadths in meters). Paste data directly from spreadsheet.
@@ -203,6 +203,36 @@
                                 <br>Each subsequent row must start with a station label (number, e.g., 0, 1, 1.5) followed by comma- or tab-separated half-breadths for each waterline.
                                 <br>Leave a value empty (e.g., `,,` or `&#09;&#09;`) for a missing offset. All labels must be numeric and strictly increasing.
                             </label>
+                            <p>
+                                Offset Table 
+                                <br>ST/WL	0	0.25	0.5	0.75	1
+                                <br>0	0	0	0	0	0
+                                <br>0.50	0.049842	0.322686	0.3198	0.3354	0.3978
+                                <br>1	0.071994	0.630006	0.6786	0.702	0.7956
+                                <br>1.5	0.105222	0.968058	1.0998	1.1544	1.248
+                                <br>2	0.132912	1.367574	1.5912	1.6614	1.7784
+                                <br>3	0.30459	2.258802	2.6988	2.8704	3.0498
+                                <br>4	0.742092	3.349788	3.9156	4.173	4.3836
+                                <br>5	1.52295	4.525287	5.148	5.3898	5.6004
+                                <br>6	2.597322	5.631639	6.2556	6.4272	6.5598
+                                <br>7	3.688308	6.561282	7.0668	7.1526	7.2228
+                                <br>8	4.602078	7.183605	7.5738	7.6206	7.6362
+                                <br>9	5.23341	7.521657	7.7688	7.8	7.8
+                                <br>10	5.538	7.683	7.8	7.8	7.8
+                                <br>11	5.34417	7.60617	7.8	7.8	7.8
+                                <br>12	4.884516	7.360314	7.7532	7.8	7.8
+                                <br>13	4.247646	6.853236	7.5036	7.6986	7.7532
+                                <br>14	3.444636	6.000423	6.8952	7.3554	7.605
+                                <br>15	2.564094	4.909437	5.8812	6.6846	7.3086
+                                <br>16	1.711242	3.710889	4.6176	5.6784	6.6846
+                                <br>17	0.930384	2.53539	3.2214	4.2198	5.655
+                                <br>18	0.35997	1.482819	1.8408	2.5038	4.1808
+                                <br>18.5	0.177216	0.99879	1.2168	1.6848	3.315
+                                <br>19	0.077532	0.583908	0.663	0.9048	2.4024
+                                <br>19.5	0.05538	0.15366	0.1716	0.2574	1.5054
+                                <br>20	0	0	0	0	0.6396
+
+                            </p>
                             <textarea id="offsetTableInput" rows="15" placeholder="Example (comma-separated):
 ST/WL,0,0.25,0.5,0.75,1
 0,0,0,0,0,0
