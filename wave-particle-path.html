@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects Portfolio - Wave Particle Path Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for graphing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <!-- MathJax for rendering equations -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+     <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <style>
+        /* Specific styles for this page */
+        .nav-link.active {
+            font-weight: bold;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            color: #d1d5db; /* gray-300 */
+        }
+        @media (max-width: 1023px) {
+            #nav-links.flex {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        /* Styles for the project shortcut cards, for the newly added section */
+        .shortcut-card {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease-in-out;
+            transform: translateY(0);
+            cursor: pointer; /* Indicate it's clickable */
+        }
+        .shortcut-card:hover {
+            transform: translateY(-0.25rem) scale(1.02); /* Slight lift and scale on hover */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        .input-group input, .input-group select {
+            padding: 0.5rem;
+            border-radius: 0.375rem; /* rounded-md */
+            border: 1px solid #d1d5db; /* gray-300 */
+            width: 100%;
+        }
+        .input-group input:read-only {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        .input-grid {
+            display: grid;
+            gap: 1.5rem; /* space-y-6 */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        /* Use Tailwind's built-in `hidden` utility; avoid overriding it here. */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+        }
+        th {
+            background-color: #e5e7eb; /* gray-200 */
+            font-weight: 600;
+        }
+        .orbit-table-container {
+            break-inside: avoid;
+        }
+        .text-sm-note {
+            font-size: 0.8rem;
+            color: #6b7280; /* gray-500 */
+            margin-top: 0.5rem;
+        }
+        #chartContainer {
+            max-width: 100%;
+        }
+        #chartContainer canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <!-- Brand/Logo -->
+            <a href="index.html" class="text-white text-3xl font-extrabold tracking-wider">iamtawhid</a>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-button" class="text-white lg:hidden focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div id="nav-links" class="hidden lg:flex flex-col lg:flex-row lg:items-center w-full lg:w-auto mt-4 lg:mt-0 space-y-3 lg:space-y-0 lg:space-x-8">
+                <a href="index.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Home</a>
+                <a href="nav-angle-converter.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">NavAngle Converter</a>
+                
+                <!-- Automation Dropdown -->
+                <div class="relative group">
+                    <a href="javascript:void(0)" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">
+                        Automation <i class="fas fa-chevron-down text-sm ml-1 group-hover:rotate-180 transition-transform duration-300"></i>
+                    </a>
+                    <div class="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 top-full bg-white text-gray-800 rounded-md shadow-lg py-2 w-56 lg:w-48 transform -translate-x-1/2 lg:translate-x-0 left-1/2 lg:left-0 z-10">
+                        <a href="ship-lines-plan-drawing.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Lines Plan Drawing</a>
+                        <a href="ship-hydrostatic-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-200 text-base">Ship Hydrostatic Calculation</a>
+                        <a href="ship-trim-calculation.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 text-base">Ship Trim Calculation</a>
+                        <a href="wave-particle-path.html" class="block px-4 py-2 hover:bg-gray-200 transition duration-300 text-base active">Wave Particle Path</a>
+                    </div>
+                </div>
+                
+                <a href="contact.html" class="nav-link text-white hover:text-purple-200 transition duration-300 ease-in-out text-lg px-3 py-1 rounded-md">Contact</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-6 md:p-8">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-6 border-b-2 pb-2 text-center">Wave Particle Path</h1>
+        
+        <!-- Input Section -->
+        <section class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Input Parameters (Step 1)</h2>
+            <form id="waveInputForm">
+                <div class="input-grid">
+                    <!-- Water Type Selection -->
+                    <div class="input-group">
+                        <label for="waterType">1. Select Water Type</label>
+                        <select id="waterType" name="waterType" required class="focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">-- Select Water Type --</option>
+                            <option value="deep">Deep Water</option>
+                            <option value="transitional">Transitional Water</option>
+                            <option value="shallow">Shallow Water</option>
+                        </select>
+                    </div>
+                    <!-- Wave Amplitude (A) -->
+                    <div class="input-group">
+                        <label for="amplitude">2. Wave Amplitude (A) [m]</label>
+                        <input type="number" id="amplitude" name="amplitude" placeholder="3.6" step="0.01" required class="focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <!-- D/L Ratio -->
+                    <div class="input-group">
+                        <label for="dLRatio">3. Depth-to-Wavelength Ratio (d/L)</label>
+                        <input type="number" id="dLRatio" name="dLRatio" placeholder="0.6" step="0.01" required class="focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-sm-note">(d/L&gt;0.5 for Deep water, 0.05&lt;d/L&lt;0.5 for Transitional water, 0&lt;d/L&lt;0.05 for Shallow water)</p>
+                    </div>
+                    <!-- Wave Period (T) -->
+                    <div class="input-group">
+                        <label for="wavePeriod">4. Wave Period (T) [s]</label>
+                        <input type="number" id="wavePeriod" name="wavePeriod" placeholder="10" step="0.1" required class="focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="flex justify-start space-x-4 mt-6">
+                    <button type="button" id="calculateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                        <i class="fas fa-calculator mr-2"></i> Calculate Wave Parameters
+                    </button>
+                    <button type="button" id="clearBtn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                        <i class="fas fa-trash-alt mr-2"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </section>
+        
+        <!-- Wave Parameters Result Section -->
+        <section id="parameterResults" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8 hidden">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Calculated Wave Parameters</h2>
+            <div id="waveParameterDisplay" class="input-grid">
+                <!-- Water Depth (D) -->
+                <div class="input-group">
+                    <label for="waterDepth">Water Depth (D) [m]</label>
+                    <input type="text" id="waterDepth" name="waterDepth" readonly>
+                </div>
+                <!-- L (Wavelength) -->
+                <div class="input-group">
+                    <label for="waveLength">Wavelength (L) [m]</label>
+                    <input type="text" id="waveLength" name="waveLength" readonly>
+                </div>
+                <!-- k (Wave Number) -->
+                <div class="input-group">
+                    <label for="waveNumber">Wave Number (K) [1/m]</label>
+                    <input type="text" id="waveNumber" name="waveNumber" readonly>
+                </div>
+                 <!-- H (Wave Height) -->
+                <div class="input-group">
+                    <label for="waveHeight">Wave Height (H = 2A) [m]</label>
+                    <input type="text" id="waveHeight" name="waveHeight" readonly class="font-bold text-indigo-700">
+                </div>
+            </div>
+            
+            <p class="mt-4 text-sm text-gray-600">These parameters are calculated based on your selected water type and inputs.</p>
+        </section>
+        
+        <!-- Z Value Input Section -->
+        <section id="zInputSection" class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Particle Depths (Z) and Positions (x) (Step 2)</h2>
+            <div id="zValueInputs">
+                <!-- Initial Z input row -->
+                <div class="flex space-x-4 mb-3 items-end z-input-row" data-index="1">
+                    <div class="input-group flex-1">
+                        <label for="z1">Depth Z_1 [m] (from SWL)</label>
+                        <input type="number" id="z1" name="z1" value="0" step="0.001" required>
+                    </div>
+                    <div class="input-group flex-1">
+                        <label for="x1">Position x_1 [m]</label>
+                        <input type="number" id="x1" name="x1" value="0" step="0.001" required>
+                    </div>
+                    <button type="button" class="text-gray-500 hover:text-red-600 p-2 invisible" disabled><i class="fas fa-trash"></i></button>
+                </div>
+                <!-- Additional Z inputs will be added here -->
+            </div>
+            <div class="mt-4">
+                 <button type="button" id="addZBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <i class="fas fa-plus mr-2"></i> Add Another Z Value
+                </button>
+                <button type="button" id="generateOrbitsBtn" class="ml-4 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                    <i class="fas fa-chart-line mr-2"></i> Generate Orbits & Tables
+                </button>
+            </div>
+        </section>
+
+        <!-- Results Wrapper (Hidden by default) -->
+        <div id="resultsWrapper" class="hidden">
+            
+            <!-- Orbit Graph -->
+            <section class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Water Particle Orbit Diagram</h2>
+                
+                <div class="flex space-x-4 mb-4 items-center">
+                    <label for="graphSelector" class="font-medium">View Mode:</label>
+                    <select id="graphSelector" class="p-2 border rounded-md">
+                        <option value="combined">Combined Graph (All Z Values)</option>
+                    </select>
+                </div>
+                
+                <div id="chartContainer" class="relative mx-auto">
+                    <canvas id="orbitChart"></canvas>
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button id="downloadGraphBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                        <i class="fas fa-image mr-2"></i> Download Graph (PNG)
+                    </button>
+                </div>
+                <div class="mt-4 text-sm text-gray-600">
+                    <p>Horizontal displacement: \\zeta = -\\frac{H}{2} \\frac{\\cosh[K(Z+D)]}{\\sinh(KD)} \\sin(Kx - \\sigma t)</p>
+                    <p>Vertical displacement: \\epsilon = \\frac{H}{2} \\frac{\\sinh[K(Z+D)]}{\\sinh(KD)} \\cos(Kx - \\sigma t)</p>
+                </div>
+            </section>
+
+            <!-- Pressure Distribution Graphs -->
+            <section class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Water Wave Vertical Pressure Distribution</h2>
+                <div class="text-sm text-gray-600 mb-4">Two profiles plotted using first input \(x\): \(\sigma t = 0\) and \(\sigma t = \pi\).</div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-medium mb-2">\(\sigma t = 0\)</h3>
+                        <div id="pressureChartContainer0" class="relative mx-auto" style="width: 900px; height: 600px; max-width: 100%;">
+                            <canvas id="pressureChart0"></canvas>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <button id="downloadPressure0Btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                                <i class="fas fa-image mr-2"></i> Download (PNG)
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium mb-2">\(\sigma t = \pi\)</h3>
+                        <div id="pressureChartContainerPi" class="relative mx-auto" style="width: 900px; height: 600px; max-width: 100%;">
+                            <canvas id="pressureChartPi"></canvas>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <button id="downloadPressurePiBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                                <i class="fas fa-image mr-2"></i> Download (PNG)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calculation Tables -->
+            <section class="page-section bg-white shadow-xl rounded-lg p-8 md:p-12 mb-8">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Calculation Tables</h2>
+                <div id="calculationTables" class="columns-1 md:columns-2 lg:columns-3 gap-6">
+                    <!-- Tables will be inserted here by JavaScript -->
+                </div>
+                <!-- Pressure Table (3 columns) -->
+                <div id="pressureTableContainer" class="mt-8 p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="text-xl font-semibold mb-3">Pressure Distribution at \(\sigma t = 0^\circ\)</h3>
+                    <p class="text-sm text-gray-600 mb-3">\(p = -\rho g z + \frac{\rho g H}{2} \frac{\cosh[k(d+z)]}{\cosh(k d)}\cos(kx - \sigma t)\)</p>
+                    <div class="overflow-x-auto">
+                        <table id="pressureTable">
+                            <thead>
+                                <tr>
+                                    <th class="whitespace-nowrap">Depth Z [m]</th>
+                                    <th class="whitespace-nowrap">Static Pressure [kPa]</th>
+                                    <th class="whitespace-nowrap">Dynamic Pressure [kPa]</th>
+                                    <th class="whitespace-nowrap">Total Pressure [kPa]</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Pressure Table at σt = π -->
+                <div id="pressureTablePiContainer" class="mt-8 p-4 border rounded-lg shadow-sm bg-gray-50">
+                    <h3 class="text-xl font-semibold mb-3">Pressure Distribution at \(\sigma t = \pi\)</h3>
+                    <p class="text-sm text-gray-600 mb-3">\(p = -\rho g z + \frac{\rho g H}{2} \frac{\cosh[k(d+z)]}{\cosh(k d)}\cos(kx - \pi)\)</p>
+                    <div class="overflow-x-auto">
+                        <table id="pressureTablePi">
+                            <thead>
+                                <tr>
+                                    <th class="whitespace-nowrap">Depth Z [m]</th>
+                                    <th class="whitespace-nowrap">Static Pressure [kPa]</th>
+                                    <th class="whitespace-nowrap">Dynamic Pressure [kPa]</th>
+                                    <th class="whitespace-nowrap">Total Pressure [kPa]</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end mt-6 space-x-4">
+                    <button id="downloadCsvBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                        <i class="fas fa-file-csv mr-2"></i> Download All Tables (CSV)
+                    </button>
+                    <button id="downloadPdfBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out transform hover:scale-105">
+                        <i class="fas fa-file-pdf mr-2"></i> Download All Tables (PDF)
+                    </button>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <!-- Footer (copied style from index.html) -->
+    <footer class="bg-gray-800 text-white p-6 text-center text-sm shadow-inner mt-auto">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <p>&copy; 2025 iamtawhid. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="https://www.linkedin.com/in/iamtawhid/" target="_blank" rel="noopener noreferrer" class="text-white hover:text-blue-400 transition-colors duration-300">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="https://github.com/iam-tawhid" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-400 transition-colors duration-300">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="mailto:iamtawhidhassan@gmail.com" class="text-white hover:text-red-400 transition-colors duration-300">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle (robust: ensure we swap hidden <-> flex explicitly)
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menu-button');
+            const navLinks = document.getElementById('nav-links');
+            if (menuButton && navLinks) {
+                menuButton.addEventListener('click', () => {
+                    if (navLinks.classList.contains('hidden')) {
+                        navLinks.classList.remove('hidden');
+                        navLinks.classList.add('flex');
+                    } else {
+                        navLinks.classList.add('hidden');
+                        navLinks.classList.remove('flex');
+                    }
+                });
+            }
+        });
+
+        // Start IIFE to localize all variables and prevent global scope conflicts
+        (function() {
+            // Global constants
+            const G = 9.81; // Acceleration due to gravity (m/s^2)
+            const RHO = 1025; // Water density (kg/m^3)
+            const PI = Math.PI;
+            let orbitChart = null; // Chart.js instance
+            let pressureChart0 = null; // Chart.js instance for pressure (σt=0)
+            let pressureChartPi = null; // Chart.js instance for pressure (σt=π)
+            let allOrbitData = []; // Stores all calculated data for tables and graphs
+            let zCounter = 1;
+
+            // Chart.js plugin to paint a solid canvas background for proper PNG export
+            const solidBackgroundPlugin = {
+                id: 'solidBackground',
+                beforeDraw(chart, args, opts) {
+                    const { ctx, width, height } = chart;
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.fillStyle = (opts && opts.color) || '#ffffff';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.restore();
+                }
+            };
+
+            /**
+             * Calculates wave number (K) and wavelength (L) based on user's input and selected formula.
+             * Note: The Transitional water formula provided is a simplification/approximation.
+             */
+            function calculateWaveParameters() {
+                const T = parseFloat(document.getElementById('wavePeriod').value);
+                const A = parseFloat(document.getElementById('amplitude').value);
+                const dLRatio = parseFloat(document.getElementById('dLRatio').value);
+                const waterType = document.getElementById('waterType').value;
+
+                // Simple validation
+                if (isNaN(T) || T <= 0 || isNaN(A) || A <= 0 || isNaN(dLRatio) || dLRatio <= 0 || waterType === '') {
+                    alert('Please fill in all input fields with valid, positive numbers and select a water type.');
+                    document.getElementById('parameterResults').classList.add('hidden');
+                    return { L: 0, K: 0, H: 0, D: 0 };
+                }
+
+                const H = 2 * A;
+                let L = 0;
+
+                switch (waterType) {
+                    case 'deep':
+                        // L = g*T^2 / 2*π
+                        L = (G * T * T) / (2 * PI);
+                        break;
+                    case 'shallow':
+                        // L = g*(d/L)*T^2
+                        L = G * dLRatio * T * T;
+                        break;
+                    case 'transitional':
+                        // L = (g*T^2 / 2*π)*tanh(2π*(D/L))
+                        // Using the input dLRatio directly for D/L in the tanh function
+                        L = ((G * T * T) / (2 * PI)) * Math.tanh(2 * PI * dLRatio);
+                        break;
+                    default:
+                        alert('Invalid water type selected.');
+                        return { L: 0, K: 0, H: 0, D: 0 };
+                }
+
+                const K = 2 * PI / L;
+                // D is now derived from the input d/L ratio and the calculated L
+                const D = dLRatio * L;
+
+                // Display results
+                document.getElementById('waterDepth').value = D.toFixed(3);
+                document.getElementById('waveLength').value = L.toFixed(3);
+                document.getElementById('waveNumber').value = K.toFixed(4);
+                document.getElementById('waveHeight').value = H.toFixed(3);
+                
+                document.getElementById('parameterResults').classList.remove('hidden');
+
+                return { L, K, H, D };
+            }
+            
+            /**
+             * Converts degrees to radians.
+             */
+            function toRadians(degrees) {
+                return degrees * (PI / 180);
+            }
+
+            /**
+             * Calculates Zeta (Horizontal) and Epsilon (Vertical) displacement.
+             */
+            function calculateOrbitPoint(H, K, D, Z, x, sigmaT_rad) {
+                // Pre-calculate the orbit semi-axes for efficiency
+                const sinh_KD = Math.sinh(K * D);
+                
+                // Handle division by zero for extremely shallow water (though unlikely with float inputs)
+                if (sinh_KD === 0) {
+                     console.error("Sinh(KD) is zero, resulting in division by zero. Check D and K values.");
+                     return { zeta: 0, epsilon: 0, graphX: 0, graphY: Z, zeta_a: 0, epsilon_a: 0 };
+                }
+
+                // Orbital Semi-Axis Factors
+                const ZETA_A_factor = Math.cosh(K * (Z + D)) / sinh_KD;
+                const EPSILON_A_factor = Math.sinh(K * (Z + D)) / sinh_KD;
+                
+                // Formula coefficients (H/2)
+                const coeff = H / 2;
+                
+                // Full orbital semi-axes
+                const zeta_a = coeff * ZETA_A_factor;
+                const epsilon_a = coeff * EPSILON_A_factor;
+                
+                // kx - sigma*t
+                const phase = (K * x) - sigmaT_rad;
+                
+                // Calculate Zeta (Horizontal Displacement)
+                // ζ = - (H/2) * ZETA_A_factor * sin(Kx - sigma*t)
+                const zeta = -zeta_a * Math.sin(phase);
+                
+                // Calculate Epsilon (Vertical Displacement)
+                // ε = (H/2) * EPSILON_A_factor * cos(Kx - sigma*t)
+                const epsilon = epsilon_a * Math.cos(phase);
+
+                // Return calculated displacement, the full semi-axes, and the shifted coordinate for graphing
+                return {
+                    zeta: zeta,
+                    epsilon: epsilon,
+                    graphX: zeta, // Horizontal displacement (ζ)
+                    graphY: epsilon + Z, // Vertical displacement (ε + Z)
+                    zeta_a: zeta_a,
+                    epsilon_a: epsilon_a,
+                };
+            }
+
+            /**
+             * Calculates pressures (Pa) at a given depth Z using:
+             * p = -rho*g*z + (rho*g*H/2) * cosh(k(d+z))/cosh(kd) * cos(kx - sigma t)
+             */
+            function calculatePressurePoint(H, K, D, Z, x, sigmaT_rad) {
+                const hydrostatic = -RHO * G * Z; // Z negative => positive pressure
+                const dynamic = (RHO * G * H / 2) * (Math.cosh(K * (D + Z)) / Math.cosh(K * D)) * Math.cos((K * x) - sigmaT_rad);
+                const total = hydrostatic + dynamic;
+                return { hydrostatic, dynamic, total };
+            }
+
+            /**
+             * Main function to generate the tables and the graph.
+             */
+            function generateOrbits() {
+                // 1. Get Calculated Parameters
+                const params = calculateWaveParameters();
+                if (params.L === 0) return; // Stop if calculation failed or inputs were invalid
+                const { K, H, D } = params;
+
+                // 2. Get Z and x values from dynamic inputs
+                const zRows = document.querySelectorAll('.z-input-row');
+                let particleInputs;
+                try {
+                    particleInputs = Array.from(zRows).map((row, index) => {
+                        // Get the raw string value to preserve precision, then parse
+                        const zInput = row.querySelector(`[name^="z"]`);
+                        const xInput = row.querySelector(`[name^="x"]`);
+                        const Z = parseFloat(zInput.value);
+                        const x = parseFloat(xInput.value);
+                        
+                        // Validate Z: Must be <= 0 and >= -D
+                        // Use tolerance matching our input precision (0.001m)
+                        // Check if Z is within the valid range [0, -D] with tolerance
+                        const tolerance = 0.001;
+                        const isWithinRange = !isNaN(Z) && Z <= tolerance && Z >= (-D - tolerance);
+                        
+                        if (!isWithinRange) {
+                            // Show full precision in error message to match input precision
+                            const zDisplay = isNaN(Z) ? zInput.value : Z.toFixed(3);
+                            alert(`Z value Z${index + 1} (${zDisplay}) is outside the valid range [0m, ${-D.toFixed(3)}m] (Water Depth). Please correct it.`);
+                            throw new Error("Invalid Z value");
+                        }
+                        return { Z, x };
+                    });
+                } catch(e) {
+                    if (e.message === "Invalid Z value") return;
+                    console.error("Error processing Z inputs:", e);
+                    return;
+                }
+                
+                // Clear previous results
+                document.getElementById('calculationTables').innerHTML = '';
+                allOrbitData = [];
+                // Degrees for table display (every 30 degrees for readability)
+                const tableDegrees = [];
+                for (let deg = 0; deg <= 360; deg += 30) { tableDegrees.push(deg); }
+                // Degrees for smooth graph display (every 5 degrees)
+                const graphDegrees = [];
+                for (let deg = 0; deg <= 360; deg += 5) { graphDegrees.push(deg); }
+
+                // 3. Perform Calculations and Build Tables
+                particleInputs.forEach(({ Z, x }, index) => {
+                    const tableId = `orbitTable_${index}`;
+                    const tableContainer = document.createElement('div');
+                    tableContainer.className = 'orbit-table-container p-4 border rounded-lg shadow-sm bg-gray-50 mb-6';
+                    
+                    tableContainer.innerHTML = `
+                        <h3 class="text-xl font-semibold mb-3">Particle Orbit at Z = ${Z.toFixed(2)}m, x = ${x.toFixed(2)}m</h3>
+                        <div class="overflow-x-auto">
+                            <table id="${tableId}">
+                                <thead>
+                                    <tr>
+                                        <th>\\sigma t [deg]</th>
+                                        <th>Horizontal Disp. (\\zeta) [m]</th>
+                                        <th>Vertical Disp. (\\epsilon) [m]</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    `;
+                    document.getElementById('calculationTables').appendChild(tableContainer);
+                    const tableBody = tableContainer.querySelector('tbody');
+                    
+                    const currentOrbitPoints = []; // For table display (30 degree intervals)
+                    const graphOrbitPoints = []; // For smooth graph display (5 degree intervals)
+                    
+                    // Generate high-resolution points for smooth graph
+                    graphDegrees.forEach(deg => {
+                        const sigmaT_rad = toRadians(deg);
+                        const result = calculateOrbitPoint(H, K, D, Z, x, sigmaT_rad);
+                        
+                        graphOrbitPoints.push({
+                            deg, 
+                            zeta: result.zeta, 
+                            epsilon: result.epsilon,
+                            graphX: result.graphX,
+                            graphY: result.graphY,
+                        });
+                    });
+                    
+                    // Generate table data points (30 degree intervals for readability)
+                    tableDegrees.forEach(deg => {
+                        const sigmaT_rad = toRadians(deg);
+                        const result = calculateOrbitPoint(H, K, D, Z, x, sigmaT_rad);
+                        
+                        currentOrbitPoints.push({
+                            deg, 
+                            zeta: result.zeta, 
+                            epsilon: result.epsilon,
+                            graphX: result.graphX,
+                            graphY: result.graphY,
+                        });
+                        
+                        // Add row to table
+                        const newRow = tableBody.insertRow();
+                        newRow.insertCell().textContent = deg;
+                        newRow.insertCell().textContent = result.zeta.toFixed(4);
+                        newRow.insertCell().textContent = result.epsilon.toFixed(4);
+                    });
+
+                    allOrbitData.push({ 
+                        Z, 
+                        x, 
+                        data: graphOrbitPoints, // Use high-resolution data for graph
+                        tableData: currentOrbitPoints, // Keep table data separate
+                        // Recalculate axes for display consistency
+                        zeta_a: calculateOrbitPoint(H, K, D, Z, x, 0).zeta_a,
+                        epsilon_a: calculateOrbitPoint(H, K, D, Z, x, 0).epsilon_a,
+                    });
+                });
+
+                // 4. Generate Graph
+                updateGraphSelector(particleInputs);
+                drawOrbitChart('combined');
+
+                // 5. Show Results first (ensure canvases are measurable before drawing charts)
+                document.getElementById('resultsWrapper').classList.remove('hidden');
+
+                // Pressure tables and charts
+                generatePressureTable(particleInputs, { K, H, D }, 0, '#pressureTable');
+                generatePressureTable(particleInputs, { K, H, D }, Math.PI, '#pressureTablePi');
+                drawPressureChart(particleInputs, { K, H, D }, 0, 'pressureChart0', 'Vertical Pressure Distribution (σt = 0°)');
+                drawPressureChart(particleInputs, { K, H, D }, Math.PI, 'pressureChartPi', 'Vertical Pressure Distribution (σt = π)');
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typesetPromise();
+                }
+            }
+
+            /**
+             * Builds the 3-column pressure table at sigma t = 0° for each provided Z and x.
+             */
+            function generatePressureTable(particleInputs, params, sigmaT_rad, tableSelector) {
+                const { K, H, D } = params;
+                const tableBody = document.querySelector(`${tableSelector} tbody`);
+                if (!tableBody) return;
+                tableBody.innerHTML = '';
+
+                particleInputs.forEach(({ Z, x }) => {
+                    const p = calculatePressurePoint(H, K, D, Z, x, sigmaT_rad);
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = Z.toFixed(3);
+                    row.insertCell().textContent = (p.hydrostatic / 1000).toFixed(3);
+                    row.insertCell().textContent = (p.dynamic / 1000).toFixed(3);
+                    row.insertCell().textContent = (p.total / 1000).toFixed(3);
+                });
+            }
+
+            /**
+             * Draw pressure vs depth chart overlaying static, dynamic and total pressure.
+             * Uses sigma t = 0° and x from the first input (or 0 if none).
+             */
+            function drawPressureChart(particleInputs, params, sigmaT_rad, canvasId, chartTitle) {
+                const { K, H, D } = params;
+                const xForPressure = (particleInputs[0] && !isNaN(particleInputs[0].x)) ? particleInputs[0].x : 0;
+
+                // Build vertical profile from surface (0) to seabed (-D)
+                const numPoints = 120;
+                const Zs = [];
+                for (let i = 0; i <= numPoints; i++) {
+                    Zs.push(0 - (D * i / numPoints));
+                }
+
+                const staticData = Zs.map(Z => ({ x: (-RHO * G * Z) / 1000, y: Z }));
+                const dynamicData = Zs.map(Z => ({ x: ((RHO * G * H / 2) * (Math.cosh(K * (D + Z)) / Math.cosh(K * D)) * Math.cos(K * xForPressure - sigmaT_rad)) / 1000, y: Z }));
+                const totalData = Zs.map((_, idx) => ({ x: staticData[idx].x + dynamicData[idx].x, y: Zs[idx] }));
+
+                if (canvasId === 'pressureChart0' && pressureChart0) { pressureChart0.destroy(); }
+                if (canvasId === 'pressureChartPi' && pressureChartPi) { pressureChartPi.destroy(); }
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                const chartInstance = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [
+                            { label: 'Static Pressure', data: staticData, borderColor: 'hsl(210,70%,45%)', backgroundColor: 'hsl(210,70%,45%)', showLine: true, pointRadius: 0, borderWidth: 2 },
+                            { label: 'Dynamic Pressure', data: dynamicData, borderColor: 'hsl(25,75%,45%)', backgroundColor: 'hsl(25,75%,45%)', showLine: true, pointRadius: 0, borderWidth: 2 },
+                            { label: 'Total Pressure', data: totalData, borderColor: 'hsl(140,70%,40%)', backgroundColor: 'hsl(140,70%,40%)', showLine: true, pointRadius: 0, borderWidth: 2 }
+                        ]
+                    },
+                    plugins: [solidBackgroundPlugin],
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 0 },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: { display: true, text: 'Pressure [kPa]' },
+                                grid: { borderColor: 'gray' }
+                            },
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                title: { display: true, text: 'Depth Z [m]' },
+                                reverse: false,
+                                min: -D,
+                                max: 0,
+                                grid: { borderColor: 'gray' }
+                            }
+                        },
+                        plugins: {
+                            solidBackground: { color: '#ffffff' },
+                            legend: { position: 'top' },
+                            title: { display: true, text: chartTitle }
+                        }
+                    }
+                });
+                if (canvasId === 'pressureChart0') { pressureChart0 = chartInstance; }
+                if (canvasId === 'pressureChartPi') { pressureChartPi = chartInstance; }
+            }
+            
+            /**
+             * Updates the graph selector dropdown with options for individual Z values.
+             */
+            function updateGraphSelector(particleInputs) {
+                const selector = document.getElementById('graphSelector');
+                selector.innerHTML = '<option value="combined">Combined Graph (All Z Values)</option>';
+                
+                particleInputs.forEach((input, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `Orbit at Z = ${input.Z.toFixed(2)}m, x = ${input.x.toFixed(2)}m`;
+                    selector.appendChild(option);
+                });
+                // Remove previous listener before adding to prevent duplicates
+                selector.removeEventListener('change', handleGraphSelection);
+                selector.addEventListener('change', handleGraphSelection);
+            }
+            
+            /**
+             * Handles the graph selection change event.
+             */
+            function handleGraphSelection() {
+                const selectedValue = document.getElementById('graphSelector').value;
+                drawOrbitChart(selectedValue);
+            }
+
+            /**
+             * Draws the Chart.js graph.
+             * @param {string} mode - 'combined' or index of the specific Z value (as a string).
+             */
+            function drawOrbitChart(mode) {
+                if (orbitChart) {
+                    orbitChart.destroy();
+                }
+
+                // Set container size based on mode - larger for combined, smaller for individual
+                const chartContainer = document.getElementById('chartContainer');
+                // Check if screen is smaller than 1000px for responsive sizing
+                const isMobile = window.innerWidth < 1000;
+                if (mode === 'combined') {
+                    // Larger size for combined graph to show all orbits clearly
+                    if (isMobile) {
+                        chartContainer.style.width = 'min(90vw, 700px)';
+                        chartContainer.style.height = 'min(90vw, 700px)';
+                    } else {
+                        chartContainer.style.width = '900px';
+                        chartContainer.style.height = '900px';
+                    }
+                } else {
+                    // Smaller size for individual graphs
+                    if (isMobile) {
+                        chartContainer.style.width = 'min(80vw, 500px)';
+                        chartContainer.style.height = 'min(80vw, 500px)';
+                    } else {
+                        chartContainer.style.width = '600px';
+                        chartContainer.style.height = '600px';
+                    }
+                }
+
+                let datasets = [];
+                const D = parseFloat(document.getElementById('waterDepth').value);
+                const H = parseFloat(document.getElementById('waveHeight').value);
+                
+                let orbitsToDraw = [];
+                if (mode === 'combined') {
+                    orbitsToDraw = allOrbitData;
+                } else {
+                    const index = parseInt(mode);
+                    orbitsToDraw = [allOrbitData[index]];
+                }
+                
+                orbitsToDraw.forEach((orbit, index) => {
+                    const colorIndex = mode === 'combined' ? index : 0; // Use index for combined, fixed color for single view
+                    const colorHue = colorIndex * 60;
+                    
+                    // Add smooth line using high-resolution data (no points)
+                    datasets.push({
+                        label: `Z = ${orbit.Z.toFixed(2)}m (ζₐ=${orbit.zeta_a.toFixed(2)}, εₐ=${orbit.epsilon_a.toFixed(2)})`,
+                        data: orbit.data.map(p => ({ x: p.graphX, y: p.graphY })),
+                        borderColor: `hsl(${colorHue}, 70%, 50%)`,
+                        backgroundColor: `hsl(${colorHue}, 70%, 50%, 0.1)`,
+                        borderWidth: 2,
+                        pointRadius: 0, // No points on the line
+                        tension: 0, // Keep tension at 0 to maintain accurate orbit shape
+                        showLine: true,
+                    });
+                    
+                    // Add points only at the 13 σt values (every 30 degrees) using table data
+                    if (orbit.tableData) {
+                        datasets.push({
+                            label: '', // Empty label to not show in legend
+                            data: orbit.tableData.map(p => ({ x: p.graphX, y: p.graphY })),
+                            borderColor: `hsl(${colorHue}, 70%, 50%)`,
+                            backgroundColor: `hsl(${colorHue}, 70%, 50%)`,
+                            borderWidth: 0,
+                            pointRadius: 2.5, // Show points at 13 σt values
+                            pointHoverRadius: 4, // Larger on hover
+                            tension: 0,
+                            showLine: false, // No line, just points
+                        });
+                    }
+                    
+                    // Add the reference point for the center of the orbit
+                    datasets.push({
+                        label: `Center Z = ${orbit.Z.toFixed(2)}m`,
+                        data: [{ x: 0, y: orbit.Z }],
+                        type: 'scatter',
+                        backgroundColor: `hsl(${colorHue}, 70%, 50%)`,
+                        pointRadius: 5,
+                        pointStyle: 'crossRot',
+                    });
+                });
+                
+                // Determine graph limits based on mode
+                let maxDisp, maxY, minY, xRange, yRange, unifiedRange, xMin, xMax, yMin, yMax;
+                
+                if (mode === 'combined') {
+                    // Combined mode: show all orbits, use all data to calculate ranges
+                    maxDisp = allOrbitData.reduce((max, orbit) => Math.max(max, orbit.zeta_a), 0);
+                    maxDisp = Math.max(maxDisp, H/2); // Ensure horizontal axis accommodates wave height displacement
+                    
+                    // Find the maximum vertical position (top of any orbit)
+                    maxY = allOrbitData.reduce((max, orbit) => {
+                        const orbitMaxY = orbit.data.reduce((m, p) => Math.max(m, p.graphY), orbit.Z);
+                        return Math.max(max, orbitMaxY);
+                    }, H / 2);
+                    
+                    // Find the minimum vertical position (bottom of any orbit or seabed)
+                    minY = allOrbitData.reduce((min, orbit) => {
+                        const orbitMinY = orbit.data.reduce((m, p) => Math.min(m, p.graphY), orbit.Z);
+                        return Math.min(min, orbitMinY);
+                    }, -D);
+                    minY = Math.min(minY, -D); // Ensure seabed is included
+                    
+                    // Calculate the range needed for both axes
+                    xRange = maxDisp * 1.5 * 2; // Total X range (from -maxDisp*1.5 to +maxDisp*1.5)
+                    yRange = maxY - minY; // Total Y range
+                    
+                    // Use the larger range for both axes to ensure equal scales (1:1 aspect ratio for data)
+                    unifiedRange = Math.max(xRange, yRange * 1.1); // Add 10% padding for Y
+                    
+                    // X-axis is centered at 0 (horizontal displacement)
+                    xMin = -unifiedRange / 2;
+                    xMax = unifiedRange / 2;
+                    
+                    // Y-axis: center around the orbits to show all data
+                    const yCenter = (maxY + minY) / 2;
+                    yMin = yCenter - unifiedRange / 2;
+                    yMax = yCenter + unifiedRange / 2;
+                } else {
+                    // Individual mode: zoom in on the specific orbit to make it appear larger
+                    const currentOrbit = orbitsToDraw[0];
+                    
+                    // Calculate range based only on this specific orbit
+                    const orbitMaxDisp = Math.max(currentOrbit.zeta_a, currentOrbit.epsilon_a);
+                    
+                    // Find the actual extent of this orbit's data points
+                    const orbitDataPoints = currentOrbit.data;
+                    const orbitXMin = Math.min(...orbitDataPoints.map(p => p.graphX));
+                    const orbitXMax = Math.max(...orbitDataPoints.map(p => p.graphX));
+                    const orbitYMin = Math.min(...orbitDataPoints.map(p => p.graphY));
+                    const orbitYMax = Math.max(...orbitDataPoints.map(p => p.graphY));
+                    
+                    // Calculate ranges with padding to make the orbit appear larger
+                    let orbitXRange = (orbitXMax - orbitXMin) * 1.3; // 30% padding
+                    let orbitYRange = (orbitYMax - orbitYMin) * 1.3; // 30% padding
+                    
+                    // If range is too small (e.g., near seabed with very small vertical displacement),
+                    // use the orbit's semi-axes instead
+                    if (orbitXRange < 0.1) {
+                        orbitXRange = currentOrbit.zeta_a * 2.6; // 2x the semi-axis with padding
+                    }
+                    if (orbitYRange < 0.1) {
+                        orbitYRange = currentOrbit.epsilon_a * 2.6; // 2x the semi-axis with padding
+                    }
+                    
+                    // Use the larger range for both axes to maintain equal scales
+                    unifiedRange = Math.max(orbitXRange, orbitYRange);
+                    
+                    // Ensure minimum range so small orbits don't appear as points
+                    // Use at least 2.5x the orbit's maximum semi-axis as minimum range
+                    const minRange = Math.max(orbitMaxDisp * 2.5, 0.5); // Minimum 0.5m or 2.5x the orbit size
+                    if (unifiedRange < minRange) {
+                        unifiedRange = minRange;
+                    }
+                    
+                    // Center X-axis at 0 (orbits are horizontally centered)
+                    xMin = -unifiedRange / 2;
+                    xMax = unifiedRange / 2;
+                    
+                    // Center Y-axis around the orbit's Z position (the center of the orbit)
+                    const yCenter = currentOrbit.Z;
+                    yMin = yCenter - unifiedRange / 2;
+                    yMax = yCenter + unifiedRange / 2;
+                    
+                    // Update maxDisp for static lines (but they may extend beyond visible area)
+                    maxDisp = orbitMaxDisp;
+                }
+
+                // Add static lines (Sea Surface and Seabed) - only need to be done once
+                datasets.push({
+                    label: 'Sea Surface (Z=0)',
+                    data: [{x: xMin, y: 0}, {x: xMax, y: 0}],
+                    type: 'line',
+                    borderColor: 'rgba(0, 128, 0, 0.5)',
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    showLine: true,
+                });
+                
+                datasets.push({
+                    label: `Seabed (Z=${-D.toFixed(2)}m)`,
+                    data: [{x: xMin, y: -D}, {x: xMax, y: -D}],
+                    type: 'line',
+                    borderColor: 'rgba(139, 69, 19, 0.5)',
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    showLine: true,
+                });
+
+                const ctx = document.getElementById('orbitChart').getContext('2d');
+                
+                orbitChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: { datasets: datasets },
+                    plugins: [solidBackgroundPlugin],
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Let container control the size
+                        animation: { duration: 0 },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: { display: true, text: 'Horizontal Displacement (ζ) [m]' },
+                                min: xMin,
+                                max: xMax,
+                                grid: { borderColor: 'gray' }
+                            },
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                title: { display: true, text: 'Depth (Z + ε) [m]' },
+                                min: yMin,
+                                max: yMax,
+                                reverse: false, // Z=0 is at the top
+                                grid: { borderColor: 'gray' }
+                            }
+                        },
+                        plugins: {
+                            solidBackground: { color: '#ffffff' },
+                            legend: { position: 'top' },
+                            title: { display: true, text: 'Water Particle Orbits Diagram' },
+                            tooltip: { callbacks: {
+                                label: function(context) {
+                                    // Identify if it's an orbit point or a center point
+                                    const label = context.dataset.label;
+                                    if (label.includes('Center')) {
+                                        return `${label}: Z=${context.parsed.y.toFixed(4)}m`;
+                                    }
+                                    return `(ζ, ε+Z): (${context.parsed.x.toFixed(4)}, ${context.parsed.y.toFixed(4)}) m`;
+                                }
+                            }}
+                        }
+                    }
+                });
+            }
+            
+            /**
+             * Handles the download of all orbit table data as a single CSV file.
+             */
+            function downloadResultsAsCSV() {
+                if (allOrbitData.length === 0) {
+                    alert('No calculation data available to download. Please generate orbits first.');
+                    return;
+                }
+                
+                let csv = [];
+                
+                // Collect all data (use tableData if available for readable output)
+                allOrbitData.forEach((orbit, index) => {
+                    csv.push(`\n--- Particle Orbit at Z=${orbit.Z.toFixed(2)}m, x=${orbit.x.toFixed(2)}m ---`);
+                    csv.push(`"sigma t [deg]","Horizontal Disp. (zeta) [m]","Vertical Disp. (epsilon) [m]"`);
+                    
+                    const dataToExport = orbit.tableData || orbit.data; // Use table data if available
+                    dataToExport.forEach(p => {
+                        csv.push(`${p.deg},${p.zeta.toFixed(4)},${p.epsilon.toFixed(4)}`);
+                    });
+                });
+
+                // Create CSV file
+                const csvFile = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(csvFile);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'wave_particle_orbits_data.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            
+            /**
+             * Handles the download of all orbit table data as a single PDF file.
+             */
+            function downloadResultsAsPDF() {
+                if (allOrbitData.length === 0) {
+                    alert('No calculation data available to download. Please generate orbits first.');
+                    return;
+                }
+                
+                // window.jsPDF is available thanks to the script tag
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(18);
+                doc.text("Wave Particle Orbit Calculation Results", 10, 20);
+                
+                let finalY = 30;
+
+                allOrbitData.forEach((orbit, index) => {
+                    const startY = finalY + 10;
+                    
+                    // Title for the current table
+                    doc.setFontSize(12);
+                    doc.text(`Orbit at Z = ${orbit.Z.toFixed(2)}m, x = ${orbit.x.toFixed(2)}m`, 10, startY);
+                    
+                    const dataToExport = orbit.tableData || orbit.data; // Use table data if available
+                    const tableBody = dataToExport.map(p => [
+                        p.deg, 
+                        p.zeta.toFixed(4), 
+                        p.epsilon.toFixed(4)
+                    ]);
+                    
+                    // Add table
+                    doc.autoTable({
+                        startY: startY + 2,
+                        head: [['σt [deg]', 'Horizontal Disp. (ζ) [m]', 'Vertical Disp. (ε) [m]']],
+                        body: tableBody,
+                        styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+                        headStyles: { fillColor: [229, 231, 235] },
+                        margin: { top: 5, left: 10, right: 10 },
+                        didDrawPage: function(data) { finalY = data.cursor.y; }
+                    });
+
+                    finalY = doc.lastAutoTable.finalY + 5;
+                    if (finalY > 250 && index < allOrbitData.length - 1) { // Check if new page is needed
+                        doc.addPage();
+                        finalY = 20;
+                    }
+                });
+
+                doc.save('wave_particle_orbits_tables.pdf');
+            }
+            
+            /**
+             * Handles the download of the graph as a PNG image.
+             */
+            function downloadGraph() {
+                if (!orbitChart) {
+                    alert('No graph available to download. Please generate orbits first.');
+                    return;
+                }
+                // Use Chart.js helper to get the base64 image data
+                const imageURL = orbitChart.toBase64Image('image/png');
+                const a = document.createElement('a');
+                a.href = imageURL;
+                a.download = 'wave_particle_orbit_graph.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            // Download specific pressure chart
+            function downloadPressureChart(which) {
+                let chart = null;
+                let filename = '';
+                if (which === '0') { chart = pressureChart0; filename = 'pressure_distribution_sigma0.png'; }
+                if (which === 'pi') { chart = pressureChartPi; filename = 'pressure_distribution_sigmapi.png'; }
+                if (!chart) {
+                    alert('No pressure graph available to download. Please generate orbits first.');
+                    return;
+                }
+                const imageURL = chart.toBase64Image('image/png');
+                const a = document.createElement('a');
+                a.href = imageURL;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            // Function to clear all input fields
+            function clearInputs() {
+                document.getElementById('waveInputForm').reset();
+                document.getElementById('parameterResults').classList.add('hidden');
+                document.getElementById('resultsWrapper').classList.add('hidden');
+                document.getElementById('calculationTables').innerHTML = '';
+                const ptBody = document.querySelector('#pressureTable tbody');
+                if (ptBody) { ptBody.innerHTML = ''; }
+                const ptBodyPi = document.querySelector('#pressureTablePi tbody');
+                if (ptBodyPi) { ptBodyPi.innerHTML = ''; }
+                
+                // Reset Z value inputs to only the first one
+                const zValueInputs = document.getElementById('zValueInputs');
+                zValueInputs.innerHTML = `
+                    <div class="flex space-x-4 mb-3 items-end z-input-row" data-index="1">
+                        <div class="input-group flex-1">
+                            <label for="z1">Depth Z_1 [m] (from SWL)</label>
+                            <input type="number" id="z1" name="z1" value="0" step="0.001" required>
+                        </div>
+                        <div class="input-group flex-1">
+                            <label for="x1">Position x_1 [m]</label>
+                            <input type="number" id="x1" name="x1" value="0" step="0.001" required>
+                        </div>
+                        <button type="button" class="text-gray-500 hover:text-red-600 p-2 invisible" disabled><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                zCounter = 1; // Reset counter
+                if (orbitChart) {
+                    orbitChart.destroy();
+                    orbitChart = null;
+                }
+                if (pressureChart0) { pressureChart0.destroy(); pressureChart0 = null; }
+                if (pressureChartPi) { pressureChartPi.destroy(); pressureChartPi = null; }
+                allOrbitData = [];
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typesetPromise();
+                }
+            }
+            
+            /**
+             * Adds a new Z input row dynamically.
+             */
+            function addZInput() {
+                zCounter++;
+                const index = zCounter;
+                const zValueInputs = document.getElementById('zValueInputs');
+                
+                const newRow = document.createElement('div');
+                newRow.className = 'flex space-x-4 mb-3 items-end z-input-row';
+                newRow.setAttribute('data-index', index);
+                newRow.innerHTML = `
+                    <div class="input-group flex-1">
+                        <label for="z${index}">Depth Z_${index} [m] (from SWL)</label>
+                        <input type="number" id="z${index}" name="z${index}" value="0" step="0.001" required>
+                    </div>
+                    <div class="input-group flex-1">
+                        <label for="x${index}">Position x_${index} [m]</label>
+                        <input type="number" id="x${index}" name="x${index}" value="0" step="0.001" required>
+                    </div>
+                    <button type="button" class="text-red-500 hover:text-red-700 p-2 remove-z-btn"><i class="fas fa-trash"></i></button>
+                `;
+                
+                zValueInputs.appendChild(newRow);
+                
+                // Attach delete listener
+                newRow.querySelector('.remove-z-btn').addEventListener('click', (e) => {
+                    newRow.remove();
+                });
+            }
+
+
+            // Event Listeners
+            document.addEventListener('DOMContentLoaded', () => {
+                // Main calculation button (Step 1)
+                document.getElementById('calculateBtn').addEventListener('click', calculateWaveParameters);
+                
+                // Add Z button
+                document.getElementById('addZBtn').addEventListener('click', addZInput);
+                
+                // Generate Orbits button (Step 2)
+                document.getElementById('generateOrbitsBtn').addEventListener('click', () => {
+                    try {
+                        generateOrbits();
+                    } catch(e) {
+                        console.error(e);
+                    }
+                });
+                
+                // Clear button
+                document.getElementById('clearBtn').addEventListener('click', clearInputs);
+                
+                // Download buttons
+                document.getElementById('downloadCsvBtn').addEventListener('click', downloadResultsAsCSV);
+                document.getElementById('downloadPdfBtn').addEventListener('click', downloadResultsAsPDF);
+                document.getElementById('downloadGraphBtn').addEventListener('click', downloadGraph);
+                const dp0 = document.getElementById('downloadPressure0Btn');
+                if (dp0) dp0.addEventListener('click', () => downloadPressureChart('0'));
+                const dpPi = document.getElementById('downloadPressurePiBtn');
+                if (dpPi) dpPi.addEventListener('click', () => downloadPressureChart('pi'));
+                
+                // Mobile menu toggle handled above
+                
+                // Initial call to MathJax to render the static formulas
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typesetPromise();
+                }
+            });
+        })(); // End of IIFE
+    </script>
+</body>
+</html>
